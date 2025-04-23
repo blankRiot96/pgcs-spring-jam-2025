@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<tileset version="1.10" tiledversion="1.11.1" name="tiles" tilewidth="16" tileheight="16" tilecount="100" columns="10">
+ <image source="tiles.png" width="160" height="160"/>
+ <tile id="11" type="Coin"/>
+ <tile id="24" type="Player"/>
+ <tile id="25" type="Pistol"/>
+ <tile id="26" type="Shotgun"/>
+ <tile id="31" type="HittingTarget"/>
+ <tile id="34" type="Tile"/>
+ <tile id="35" type="Tile"/>
+ <tile id="36" type="Tile"/>
+ <tile id="44" type="Tile"/>
+ <tile id="45" type="Tile"/>
+ <tile id="46" type="Tile"/>
+ <tile id="54" type="Tile"/>
+ <tile id="55" type="Tile"/>
+ <tile id="56" type="Tile"/>
+ <tile id="60" type="FGDecoration"/>
+ <tile id="61" type="FGDecoration"/>
+ <tile id="62" type="FGDecoration"/>
+ <tile id="70" type="FGDecoration"/>
+ <tile id="71" type="FGDecoration"/>
+ <tile id="72" type="FGDecoration"/>
+ <tile id="76" type="Decoration"/>
+ <tile id="77" type="Decoration"/>
+ <tile id="78" type="Decoration"/>
+ <tile id="79" type="Decoration"/>
+ <tile id="81" type="HellPit"/>
+ <tile id="86" type="Decoration"/>
+ <tile id="87" type="GateOfHell"/>
+ <tile id="88" type="GateOfHell"/>
+ <tile id="89" type="Decoration"/>
+ <tile id="96" type="Decoration"/>
+ <tile id="97" type="GateOfHell"/>
+ <tile id="98" type="GateOfHell"/>
+ <tile id="99" type="Decoration"/>
+</tileset>
