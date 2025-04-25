@@ -3,6 +3,7 @@ from __future__ import annotations
 import typing as t
 
 import pygame
+import pytmx
 
 if t.TYPE_CHECKING:
     from src.enums import State
@@ -22,7 +23,6 @@ PALETTE: dict[t.Literal["purple", "grey", "black", "yellow"], str] = {
 ENTITY_CLASS_IMAGES: dict[str, pygame.Surface] = {}
 
 # Canvas
-layers: dict[str, pygame.Surface]
 screen: pygame.Surface
 srect: pygame.Rect
 camera: Camera
@@ -41,6 +41,8 @@ clock: pygame.Clock
 
 # States
 next_state: State | None
+level_no: int
 
 # Objects
 player: Player
+tmx_map: pytmx.TiledMap

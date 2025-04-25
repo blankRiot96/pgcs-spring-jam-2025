@@ -9,6 +9,7 @@ class Tile:
     objects: list[t.Self] = []
 
     def __init__(self, pos, image):
+        self.pos = pos
         self.collider = utils.Collider(pos, (shared.TILE_SIDE, shared.TILE_SIDE))
         Tile.objects.append(self)
         self.image = image

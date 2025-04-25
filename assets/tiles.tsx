@@ -12,6 +12,7 @@
  <tile id="44" type="Tile"/>
  <tile id="45" type="Tile"/>
  <tile id="46" type="Tile"/>
+ <tile id="51" type="Note"/>
  <tile id="54" type="Tile"/>
  <tile id="55" type="Tile"/>
  <tile id="56" type="Tile"/>
@@ -21,11 +22,10 @@
  <tile id="70" type="FGDecoration"/>
  <tile id="71" type="FGDecoration"/>
  <tile id="72" type="FGDecoration"/>
- <tile id="76" type="Decoration"/>
  <tile id="77" type="Decoration"/>
- <tile id="78" type="Decoration"/>
  <tile id="79" type="Decoration"/>
  <tile id="81" type="HellPit"/>
+ <tile id="85" type="HellPit"/>
  <tile id="86" type="Decoration"/>
  <tile id="87" type="GateOfHell"/>
  <tile id="88" type="GateOfHell"/>

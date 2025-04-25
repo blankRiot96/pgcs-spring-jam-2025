@@ -21,18 +21,25 @@ class Player:
         self.coins_collected = 0
         self.last_direction: t.Literal["right", "left"] = "right"
         self.currently_equipped: str | None = None
+        self.frozen = False
+        self.sliding = False
 
     def move(self):
+        self.sliding = shared.keys[pygame.K_LSHIFT]
+
         dx, dy = 0, 0
         self.gravity.update()
 
-        if shared.kp[pygame.K_SPACE]:
+        if shared.kp[pygame.K_SPACE] or shared.kp[pygame.K_w]:
             self.gravity.velocity = Player.JUMP_VELOCITY
 
         dy += self.gravity.velocity * shared.dt
 
         dx += shared.keys[pygame.K_d] - shared.keys[pygame.K_a]
         dx *= Player.MAX_HORIZONTAL_SPEED * shared.dt
+
+        if self.sliding:
+            dx *= 2
 
         collider_data = self.collider.get_collision_data(dx, dy)
         if (
@@ -76,6 +83,9 @@ class Player:
                 self.switch_gun_to(gun_name)
 
     def update(self):
+        if self.frozen:
+            return
+
         self.move()
         self.check_gun_swap(pygame.K_q, "pistol")
         self.check_gun_swap(pygame.K_e, "shotgun")
@@ -86,4 +96,12 @@ class Player:
             if self.last_direction == "right"
             else pygame.transform.flip(self.image, True, False)
         )
+
+        if self.sliding:
+            if self.last_direction == "right":
+                angle = 45
+            else:
+                angle = -45
+            image = pygame.transform.rotate(image, angle)
+
         shared.screen.blit(image, shared.camera.transform(self.collider.rect))

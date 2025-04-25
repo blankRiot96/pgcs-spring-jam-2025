@@ -26,6 +26,7 @@ def make_entities_from_tmx(tmx_file_path, type_factory: list[t.Type[Entity]]):
     inverted_map = {entity.__name__: entity for entity in type_factory}
 
     tiled_map = pytmx.load_pygame(tmx_file_path)
+    shared.tmx_map = tiled_map
     for layer_index, layer in enumerate(tiled_map.layers):
         if isinstance(layer, pytmx.TiledTileLayer):
             for x, y, image in layer.tiles():

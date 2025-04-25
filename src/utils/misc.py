@@ -9,6 +9,14 @@ import pygame
 from src import shared
 
 
+def darken_image(image: pygame.Surface, alpha: float) -> pygame.Surface:
+    darkened = image.copy()
+    overlay = pygame.Surface(image.get_size(), pygame.SRCALPHA)
+    overlay.fill((0, 0, 0, int(alpha)))  # Directly fill with alpha
+    darkened.blit(overlay, (0, 0))
+    return darkened
+
+
 def bound_image(image: pygame.Surface):
     return image.subsurface(image.get_bounding_rect())
 

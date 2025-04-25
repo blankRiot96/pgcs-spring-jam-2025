@@ -7,6 +7,7 @@ from src.states import StateManager
 class Core:
     def __init__(self) -> None:
         self.win_init()
+        shared.level_no = 1
         self.state_manager = StateManager()
 
     def win_init(self):
