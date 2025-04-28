@@ -12,6 +12,7 @@
  <tile id="44" type="Tile"/>
  <tile id="45" type="Tile"/>
  <tile id="46" type="Tile"/>
+ <tile id="48" type="Filth"/>
  <tile id="51" type="Note"/>
  <tile id="54" type="Tile"/>
  <tile id="55" type="Tile"/>
@@ -25,6 +26,7 @@
  <tile id="77" type="Decoration"/>
  <tile id="79" type="Decoration"/>
  <tile id="81" type="HellPit"/>
+ <tile id="82" type="Punch"/>
  <tile id="85" type="HellPit"/>
  <tile id="86" type="Decoration"/>
  <tile id="87" type="GateOfHell"/>

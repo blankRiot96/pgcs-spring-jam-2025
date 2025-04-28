@@ -2,11 +2,19 @@ import functools
 import math
 import sys
 import time
+import typing as t
 from pathlib import Path
 
 import pygame
 
 from src import shared
+
+
+def rad_to_mouse(pos: t.Sequence):
+    return math.atan2(
+        (shared.mouse_pos[1] + shared.camera.offset.y) - pos[1],
+        (shared.mouse_pos[0] + shared.camera.offset.x) - pos[0],
+    )
 
 
 def darken_image(image: pygame.Surface, alpha: float) -> pygame.Surface:
@@ -71,7 +79,7 @@ def get_asset_path(path):
     return path
 
 
-@functools.lru_cache
+@functools.cache
 def load_image(
     path: str,
     alpha: bool,

@@ -2,6 +2,7 @@ import typing as t
 
 from src import shared
 from src.enums import State
+from src.game_over_state import GameOverState
 from src.game_state import GameState
 from src.level_state import LevelState
 
@@ -17,6 +18,7 @@ class StateManager:
         self.state_dict: dict[State, t.Type[StateLike]] = {
             State.LEVEL_SELECTOR: LevelState,
             State.GAME: GameState,
+            State.GAME_OVER: GameOverState,
         }
 
         shared.next_state = State.GAME

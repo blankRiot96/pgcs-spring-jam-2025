@@ -1,2 +1,2 @@
-- add maurice like enemy
-- add shotgun core eject
+- hit effect
+- HUD (health bar, rail cannon cooldown)

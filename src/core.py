@@ -1,3 +1,5 @@
+import sys
+
 import pygame
 
 from src import shared
@@ -12,15 +14,19 @@ class Core:
 
     def win_init(self):
         pygame.init()
-        shared.screen = pygame.display.set_mode(
-            (600, 300), pygame.SCALED | pygame.FULLSCREEN, vsync=1
-        )
+
+        if len(sys.argv) > 1 and sys.argv[1] == "-d":
+            flags = 0
+        else:
+            flags = pygame.FULLSCREEN | pygame.SCALED
+
+        shared.screen = pygame.display.set_mode((600, 300), flags, vsync=1)
         shared.srect = shared.screen.get_rect()
         shared.clock = pygame.Clock()
 
     def get_events(self):
         shared.events = pygame.event.get()
-        shared.dt = shared.clock.tick() / 1000
+        shared.dt = shared.clock.tick(60) / 1000
         shared.dt = max(shared.dt, 0.1)
         shared.keys = pygame.key.get_pressed()
         shared.kp = pygame.key.get_just_pressed()

@@ -6,11 +6,11 @@ import time
 import pygame
 
 from src import shared, utils
-from src.hitting_target import HittingTarget
+from src.filth import Filth
 
 
 class Bullet:
-    def __init__(self, pos, radians, speed, seconds) -> None:
+    def __init__(self, pos, radians, speed, seconds, damage) -> None:
         self.pos = pygame.Vector2(pos)
         self.radians = radians
         self.speed = speed
@@ -18,11 +18,14 @@ class Bullet:
         self.seconds = seconds
         self.alive = True
         self.target: pygame.Vector2 | None = None
+        self.damage = damage
+
+        self.coin_history: list[pygame.Vector2] = []
 
         self.start = time.perf_counter()
 
     @classmethod
-    def from_mouse(cls, pos, speed, seconds):
+    def from_mouse(cls, pos, speed, seconds, damage):
         return cls(
             pos,
             math.atan2(
@@ -31,6 +34,7 @@ class Bullet:
             ),
             speed,
             seconds,
+            damage,
         )
 
     def get_closest_entity(self, entities, reject=None) -> tuple[Coin, float] | None:
@@ -113,12 +117,13 @@ class Coin:
         )
 
     def redirect_to_enemy(self, target, bullet):
-        bullet.target = target.pos
-        bullet.radians = utils.rad_to(bullet.pos, target.pos)
+        bullet.target = target.collider.pos
+        bullet.radians = utils.rad_to(bullet.pos, target.collider.pos)
 
     def redirect_to_coin(self, coin, bullet):
         bullet.target = coin.pos
         bullet.radians = utils.rad_to(bullet.pos, coin.rcenter)
+        bullet.coin_history.append(coin.pos)
 
     def on_bullet_collide(self):
         for bullet in shared.player.guns["pistol"].bullets:
@@ -126,7 +131,7 @@ class Coin:
                 closest_coin = bullet.get_closest_entity(
                     shared.player.guns["pistol"].coins, reject=self  # type: ignore
                 )
-                closest_target = bullet.get_closest_entity(HittingTarget.objects)
+                closest_target = bullet.get_closest_entity(Filth.objects)
 
                 if closest_coin is not None:
                     coin, dist_to_coin = closest_coin

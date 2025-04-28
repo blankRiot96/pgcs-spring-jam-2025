@@ -3,6 +3,7 @@ import pygame
 from src import shared, utils
 from src.decorations import Decoration, FGDecoration, Note
 from src.door import HellPit
+from src.filth import Filth
 from src.guns import Pistol, Shotgun
 from src.hitting_target import HittingTarget
 from src.player import Player
@@ -17,6 +18,7 @@ ENTITIES: list[utils.EntityType] = [
     HellPit,
     Decoration,
     FGDecoration,
+    Filth,
 ]
 
 
@@ -31,7 +33,10 @@ class World:
         self.create_hell_gradient()
 
     def make_note_objects(self):
-        notes_layer = shared.tmx_map.get_layer_by_name("Notes")
+        try:
+            notes_layer = shared.tmx_map.get_layer_by_name("Notes")
+        except ValueError:
+            return
         for obj in notes_layer:  # type: ignore
             Note((obj.x, obj.y), obj.image, obj.properties["text"])
 
@@ -133,14 +138,15 @@ class World:
 
     def clear_world(self):
         utils.Collider.all_colliders.clear()
-        for entity in ENTITIES:
+        for entity in ENTITIES + [Note]:
             entity.objects.clear()
 
     def update(self):
-        shared.player.update()
-        for entity in ENTITIES:
-            for obj in entity.objects:
-                obj.update()
+        if not shared.is_world_frozen:
+            shared.player.update()
+            for entity in ENTITIES:
+                for obj in entity.objects:
+                    obj.update()
 
         if shared.next_state is not None:
             self.clear_world()
@@ -160,7 +166,4 @@ class World:
         )
         self.render_entities([Tile, Decoration, HittingTarget, HellPit])
         shared.player.draw()
-        self.render_entities([Pistol, Shotgun, FGDecoration])
-
-        for note in Note.objects:
-            note.draw()
+        self.render_entities([Pistol, Shotgun, FGDecoration, Note, Filth])

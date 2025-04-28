@@ -1,21 +1,25 @@
 from src import shared, utils
 from src.background import Background
 from src.enums import State
-from src.ui import HUD
+from src.ui import HUD, FXManager
 from src.world import World
 
 
 class GameState:
     def __init__(self):
         shared.camera = utils.Camera()
+        shared.fx_manager = FXManager()
+        shared.is_world_frozen = False
         self.background = Background(
-            bg_color=shared.PALETTE["purple"], line_color=shared.PALETTE["grey"]
+            bg_color=shared.PALETTE["black"], line_color=shared.PALETTE["grey"]
         )
         self.world = World()
         self.hud = HUD()
 
     def update(self):
-        self.background.update()
+        shared.fx_manager.update()
+        if not shared.is_world_frozen:
+            self.background.update()
         self.world.update()
         self.hud.update()
 
@@ -23,3 +27,4 @@ class GameState:
         self.background.draw()
         self.world.draw()
         self.hud.draw()
+        shared.fx_manager.draw()

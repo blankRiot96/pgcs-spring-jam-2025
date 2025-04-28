@@ -52,6 +52,7 @@ class Shotgun:
                     angle + (offset * angular_space),
                     200,
                     1.0,
+                    30,
                 )
             )
 
@@ -163,11 +164,7 @@ class Pistol:
             shared.mjp[0] or shared.kp[pygame.K_9]
         ) and not self.cooldown.is_cooling_down:
             self.bullets.append(
-                Bullet.from_mouse(
-                    shared.player.collider.rect.center,
-                    200,
-                    1.0,
-                )
+                Bullet.from_mouse(shared.player.collider.rect.center, 200, 1.0, 200)
             )
             self.cooldown.start()
 

@@ -38,7 +38,7 @@ class FGDecoration:
 class Note:
     objects: list[t.Self] = []
 
-    def __init__(self, pos, image, text):
+    def __init__(self, pos, image, text="default text"):
         self.pos = pygame.Vector2(pos)
         Note.objects.append(self)
         self.image = image
