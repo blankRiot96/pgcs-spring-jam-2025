@@ -10,6 +10,7 @@ from src.player import Player
 from src.spatial import GravityWell, Portal
 from src.spawner import EntitySpawner
 from src.tiles import Tile
+from src.virtue import Virtue
 
 ENTITIES: list[utils.EntityType] = [
     Tile,
@@ -21,6 +22,7 @@ ENTITIES: list[utils.EntityType] = [
     Decoration,
     FGDecoration,
     Filth,
+    Virtue,
 ]
 
 
@@ -76,7 +78,7 @@ class World:
                 (map_obj.x, map_obj.y), map_obj.width, map_obj.height
             )
 
-            for entity_type in (Filth,):
+            for entity_type in (Filth, Virtue):
                 for obj in entity_type.objects:
                     if spawner.rect.colliderect(obj.rect):
                         obj.spawner = spawner
@@ -216,7 +218,7 @@ class World:
         )
         self.render_entities([Tile, Decoration, HittingTarget, HellPit])
         shared.player.draw()
-        self.render_entities([Pistol, Shotgun, FGDecoration, Note, Filth])
+        self.render_entities([Pistol, Shotgun, FGDecoration, Note, Filth, Virtue])
         for obj in Portal.objects:
             obj.draw()
 

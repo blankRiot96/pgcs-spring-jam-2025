@@ -7,6 +7,7 @@ import pygame
 
 from src import shared, utils
 from src.filth import Filth
+from src.virtue import Virtue
 
 
 class Bullet:
@@ -117,12 +118,14 @@ class Coin:
         )
 
     def redirect_to_enemy(self, target, bullet):
-        bullet.target = target.collider.pos
-        bullet.radians = utils.rad_to(bullet.pos, target.collider.pos)
+        bullet.target = target.pos
+        bullet.damage *= 2
+        bullet.radians = utils.rad_to(bullet.pos, target.pos)
 
     def redirect_to_coin(self, coin, bullet):
         bullet.target = coin.pos
         bullet.radians = utils.rad_to(bullet.pos, coin.rcenter)
+        bullet.damage *= 2
         bullet.coin_history.append(coin.pos)
 
     def on_bullet_collide(self):
@@ -131,7 +134,9 @@ class Coin:
                 closest_coin = bullet.get_closest_entity(
                     shared.player.guns["pistol"].coins, reject=self  # type: ignore
                 )
-                closest_target = bullet.get_closest_entity(Filth.objects)
+                closest_target = bullet.get_closest_entity(
+                    Filth.objects + Virtue.objects
+                )
 
                 if closest_coin is not None:
                     coin, dist_to_coin = closest_coin

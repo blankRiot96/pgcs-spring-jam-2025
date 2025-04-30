@@ -14,7 +14,7 @@ if t.TYPE_CHECKING:
 
 
 class Filth:
-    objects: list = []
+    objects: list[t.Self] = []
     spawner: EntitySpawner
 
     SPEED = 30.0
