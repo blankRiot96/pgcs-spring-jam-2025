@@ -1,27 +1,47 @@
+from __future__ import annotations
+
+import itertools
+import time
+import typing as t
+
 import pygame
 
 from src import shared, utils
 from src.ui import CoinLineEffect, Flash
 
+if t.TYPE_CHECKING:
+    from src.spawner import EntitySpawner
+
 
 class Filth:
     objects: list = []
+    spawner: EntitySpawner
 
     SPEED = 30.0
     PLAYER_PROXIMITY_DIST = 100
     JUMP_VELOCITY = -70
 
-    DAMAGE = 0
+    DAMAGE = 100
 
-    def __init__(self, pos, image) -> None:
+    def __init__(self, pos, image: pygame.Surface) -> None:
         Filth.objects.append(self)
+        self.original_image = image
         self.image = image
         self.pos = pygame.Vector2(pos)
         self.health = 100
         self.collider = utils.Collider(pos, self.image.get_size())
         utils.Collider.all_colliders.remove(self.collider)
+        self.rect = self.collider.rect
         self.gravity = utils.Gravity()
         self.touched_ground = True
+
+        self.spawn_start_time: float | None = None
+        self.spawn_animation_timer = utils.Timer(0.2)
+
+        self.white_image = image.copy()
+        self.white_image.fill("purple", special_flags=pygame.BLEND_RGBA_ADD)
+
+        self.spawn_images = itertools.cycle([self.white_image, image])
 
         self.dx, self.dy = 0, 0
 
@@ -68,7 +88,29 @@ class Filth:
             self.gravity.velocity = Filth.JUMP_VELOCITY
             self.touched_ground = False
 
+    def handle_punch(self):
+        if (
+            shared.player.punch_timer.is_cooling_down
+            and pygame.Vector2(self.collider.rect.center).distance_to(
+                shared.player.collider.rect.center
+            )
+            < 32
+        ):
+            self.health -= 100
+
     def update(self):
+        if not self.spawner.activated:
+            return
+        elif self.spawn_start_time is None:
+            self.spawn_start_time = time.perf_counter()
+
+        if time.perf_counter() - self.spawn_start_time < 0.7:
+            if self.spawn_animation_timer.tick():
+                self.image = next(self.spawn_images)
+            return
+        else:
+            self.image = self.original_image
+
         self.gravity.update()
         self.handle_damage()
 
@@ -77,6 +119,8 @@ class Filth:
         self.move()
         self.check_player_collide()
         self.check_tile_collisions()
+        self.handle_punch()
+        self.rect = self.collider.rect
 
     def on_bullet_collide(self, bullet, gun):
         self.health -= bullet.damage
@@ -93,12 +137,14 @@ class Filth:
                 if self.collider.rect.colliderect(bullet.collider_rect):
                     self.on_bullet_collide(bullet, gun)
 
-            if self.health <= 0:
-                try:
-                    utils.Collider.all_colliders.remove(self.collider)
-                    Filth.objects.remove(self)
-                except ValueError:
-                    pass
+        if self.health <= 0:
+            try:
+                Filth.objects.remove(self)
+            except ValueError:
+                pass
 
     def draw(self):
+        if not self.spawner.activated:
+            return
+
         shared.screen.blit(self.image, shared.camera.transform(self.collider.pos))

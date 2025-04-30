@@ -23,6 +23,7 @@ class Player:
         shared.player = self
         self.image = utils.bound_image(image)
         self.collider = utils.Collider(pos, self.image.get_size())
+        utils.Collider.all_colliders.remove(self.collider)
         self.gravity = utils.Gravity()
         self.coins_collected = 0
         self.last_direction: t.Literal["right", "left"] = "right"
@@ -123,8 +124,8 @@ class Player:
                 gun.state = GunState.INVENTORY
 
     def check_gun_swap(self, key, gun_name):
-        if shared.kp[key]:
-            gun = shared.player.guns[gun_name]
+        if shared.kp[key] and self.guns.get(gun_name) is not None:
+            gun = self.guns[gun_name]
             if gun.state in (GunState.EQUIPPED, GunState.GROUND):
                 return
             elif gun.state == GunState.INVENTORY:

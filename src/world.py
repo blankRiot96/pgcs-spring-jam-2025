@@ -7,6 +7,8 @@ from src.filth import Filth
 from src.guns import Pistol, Shotgun
 from src.hitting_target import HittingTarget
 from src.player import Player
+from src.spatial import GravityWell, Portal
+from src.spawner import EntitySpawner
 from src.tiles import Tile
 
 ENTITIES: list[utils.EntityType] = [
@@ -30,7 +32,30 @@ class World:
             f"assets/map_{shared.level_no}.tmx", type_factory=ENTITIES
         )
         self.make_note_objects()
+        self.make_portals()
+        self.make_spawners()
+        self.make_gravity_wells()
         self.create_hell_gradient()
+
+    def make_portals(self):
+        try:
+            portals_layer = shared.tmx_map.get_layer_by_name("Portals")
+        except ValueError:
+            return
+
+        for obj in portals_layer:  # type: ignore
+            Portal(
+                (obj.x, obj.y),
+                obj.image,
+                obj.properties["side"],
+                obj.properties["sync"],
+            )
+
+        for obj1 in Portal.objects:
+            for obj2 in Portal.objects:
+                if obj1.id == obj2.id and obj1 is not obj2:
+                    obj1.other = obj2
+                    obj2.other = obj1
 
     def make_note_objects(self):
         try:
@@ -39,6 +64,31 @@ class World:
             return
         for obj in notes_layer:  # type: ignore
             Note((obj.x, obj.y), obj.image, obj.properties["text"])
+
+    def make_spawners(self):
+        try:
+            spawner_layer = shared.tmx_map.get_layer_by_name("Spawners")
+        except ValueError:
+            return
+
+        for map_obj in spawner_layer:  # type: ignore
+            spawner = EntitySpawner(
+                (map_obj.x, map_obj.y), map_obj.width, map_obj.height
+            )
+
+            for entity_type in (Filth,):
+                for obj in entity_type.objects:
+                    if spawner.rect.colliderect(obj.rect):
+                        obj.spawner = spawner
+
+    def make_gravity_wells(self):
+        try:
+            wells_layer = shared.tmx_map.get_layer_by_name("GravityWells")
+        except ValueError:
+            return
+
+        for obj in wells_layer:  # type: ignore
+            GravityWell((obj.x, obj.y), obj.width, obj.height, obj.properties["acc"])
 
     def create_hell_gradient(self):
         n_layers = World.GRADIAL_LAYERS
@@ -138,13 +188,13 @@ class World:
 
     def clear_world(self):
         utils.Collider.all_colliders.clear()
-        for entity in ENTITIES + [Note]:
+        for entity in ENTITIES + [Note, EntitySpawner, GravityWell, Portal]:
             entity.objects.clear()
 
     def update(self):
         if not shared.is_world_frozen:
             shared.player.update()
-            for entity in ENTITIES:
+            for entity in ENTITIES + [EntitySpawner, GravityWell, Portal]:
                 for obj in entity.objects:
                     obj.update()
 
@@ -167,3 +217,11 @@ class World:
         self.render_entities([Tile, Decoration, HittingTarget, HellPit])
         shared.player.draw()
         self.render_entities([Pistol, Shotgun, FGDecoration, Note, Filth])
+        for obj in Portal.objects:
+            obj.draw()
+
+        for obj in GravityWell.objects:
+            obj.draw()
+
+        # for obj in EntitySpawner.objects:
+        #     obj.draw()

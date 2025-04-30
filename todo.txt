@@ -1,2 +1,15 @@
-- hit effect
-- HUD (health bar, rail cannon cooldown)
+
+Okay, we've run out of time. Need to submit on May 2nd, Actually maybe even tomorrow.
+
+
+
+How to wrap up the game?
+
+* Just add gravity wells and portals and more enemies and call it a day. 
+
+Going towards that plan:
+- Add virtues
+- Add maurice
+- For final fight make a shitty gabriel
+- Add a save data level lock system
+- Add ranking
