@@ -7,6 +7,7 @@ from src.filth import Filth
 from src.guns import Pistol, Shotgun
 from src.hitting_target import HittingTarget
 from src.player import Player
+from src.soldier import Soldier
 from src.spatial import GravityWell, Portal
 from src.spawner import EntitySpawner
 from src.tiles import Tile
@@ -22,6 +23,7 @@ ENTITIES: list[utils.EntityType] = [
     Decoration,
     FGDecoration,
     Filth,
+    Soldier,
     Virtue,
 ]
 
@@ -30,6 +32,10 @@ class World:
     GRADIAL_LAYERS = 20
 
     def __init__(self):
+        shared.pistol_bullets = []
+        shared.shotgun_bullets = []
+        shared.coins = []
+        shared.fireballs = []
         utils.make_entities_from_tmx(
             f"assets/map_{shared.level_no}.tmx", type_factory=ENTITIES
         )
@@ -78,7 +84,7 @@ class World:
                 (map_obj.x, map_obj.y), map_obj.width, map_obj.height
             )
 
-            for entity_type in (Filth, Virtue):
+            for entity_type in (Filth, Virtue, Soldier):
                 for obj in entity_type.objects:
                     if spawner.rect.colliderect(obj.rect):
                         obj.spawner = spawner
@@ -218,12 +224,12 @@ class World:
         )
         self.render_entities([Tile, Decoration, HittingTarget, HellPit])
         shared.player.draw()
-        self.render_entities([Pistol, Shotgun, FGDecoration, Note, Filth, Virtue])
+        self.render_entities(
+            [Pistol, Shotgun, FGDecoration, Note, Filth, Soldier, Virtue]
+        )
+        shared.player.draw_fist()
         for obj in Portal.objects:
             obj.draw()
 
         for obj in GravityWell.objects:
             obj.draw()
-
-        # for obj in EntitySpawner.objects:
-        #     obj.draw()

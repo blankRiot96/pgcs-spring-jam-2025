@@ -7,7 +7,9 @@ import pytmx
 
 if t.TYPE_CHECKING:
     from src.enums import State
+    from src.fireball import FireBall
     from src.player import Player
+    from src.projectiles import Bullet, Coin
     from src.ui import FXManager
     from src.utils import Camera
 
@@ -50,6 +52,10 @@ level_no: int
 player: Player
 tmx_map: pytmx.TiledMap
 fx_manager: FXManager
+pistol_bullets: list[Bullet]
+shotgun_bullets: list[Bullet]
+coins: list[Coin]
+fireballs: list[FireBall]
 
 # Flags
 is_world_frozen: bool

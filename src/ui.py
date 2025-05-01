@@ -7,27 +7,6 @@ import pygame.gfxdraw
 
 from src import shared, utils
 
-# class CoinCounter:
-#     def __init__(self, pos) -> None:
-#         self.pos = pygame.Vector2(pos)
-#         self.image = pygame.transform.scale_by(shared.ENTITY_CLASS_IMAGES["Coin"], 1.5)
-#         self.image_rect = self.image.get_rect(topleft=self.pos)
-#         self.font = utils.load_font(None, 16)
-
-#     def update(self):
-#         pass
-
-#     def draw(self):
-#         shared.screen.blit(self.image, self.image_rect)
-
-#         text_surf = self.font.render(
-#             f"{shared.player.coins_collected}x", False, "white"
-#         )
-#         text_rect = text_surf.get_rect()
-#         text_rect.midleft = self.image_rect.midright + pygame.Vector2(5, 1)
-
-#         shared.screen.blit(text_surf, text_rect)
-
 
 class PlayerGunCooldownIndicator:
     RADIUS = 5
@@ -51,14 +30,7 @@ class PlayerGunCooldownIndicator:
             pos,
             PlayerGunCooldownIndicator.RADIUS,
         )
-        # pygame.draw.arc(
-        #     shared.screen,
-        #     "white",
-        #     rect.inflate(-1, -1),
-        #     0,
-        #     shared.player.gun.cooldown.amount_cooled * (math.pi * 2),
-        #     PlayerGunCooldownIndicator.RADIUS,
-        # )
+
         pygame.gfxdraw.arc(
             shared.screen,
             int(pos.x),

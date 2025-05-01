@@ -7,6 +7,7 @@ import pygame
 
 from src import shared, utils
 from src.filth import Filth
+from src.soldier import Soldier
 from src.virtue import Virtue
 
 
@@ -97,7 +98,8 @@ class Coin:
         self.start = time.perf_counter()
         self.direction = self.radians
         self.alive = True
-        self.rect = shared.ENTITY_CLASS_IMAGES["Coin"].get_rect()
+        self.image = utils.load_image("assets/coin.png", True, bound=True)
+        self.rect = self.image.get_rect()
         self.rcenter = pygame.Vector2(self.rect.center)
 
         self.dx = math.cos(self.radians) * self.speed
@@ -135,7 +137,11 @@ class Coin:
                     shared.player.guns["pistol"].coins, reject=self  # type: ignore
                 )
                 closest_target = bullet.get_closest_entity(
-                    Filth.objects + Virtue.objects
+                    [
+                        obj
+                        for obj in Filth.objects + Virtue.objects + Soldier.objects
+                        if obj.spawner.activated
+                    ]
                 )
 
                 if closest_coin is not None:
@@ -161,28 +167,9 @@ class Coin:
                 self.alive = False
                 return
 
-    # def update(self):
-    #     self.trail_points = self.points()
-    #     self.rect.center = utils.get_mid_point(
-    #         self.trail_points[0], self.trail_points[2]
-    #     )
-    #     self.rcenter.x = self.rect.centerx
-    #     self.rcenter.y = self.rect.centery
-    #     start = self.pos.copy()
-
-    #     self.dy += (shared.WORLD_GRAVITY / 10) * shared.dt
-    #     self.pos += pygame.Vector2(self.dx, self.dy) * shared.dt
-
-    #     self.direction = utils.rad_to(start, self.pos)
-
-    #     if time.perf_counter() - self.start >= self.seconds:
-    #         self.alive = False
-
-    #     self.on_bullet_collide()
-
     def update(self):
-        self.rect.center = self.pos  # Keep this here, not just in draw()
-        self.rcenter = pygame.Vector2(self.rect.center)  # Keep it in sync
+        self.rect.center = self.pos
+        self.rcenter = pygame.Vector2(self.rect.center)
         self.on_bullet_collide()
 
         start = self.pos.copy()
@@ -219,8 +206,4 @@ class Coin:
             [shared.camera.transform(pos) for pos in points],
         )
         self.rect.center = utils.get_mid_point(points[0], points[2])
-        shared.screen.blit(
-            shared.ENTITY_CLASS_IMAGES["Coin"], shared.camera.transform(self.rect)
-        )
-
-        # utils.debug_rect(self.rect)
+        shared.screen.blit(self.image, shared.camera.transform(self.rect))
