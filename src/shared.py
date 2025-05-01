@@ -6,10 +6,11 @@ import pygame
 import pytmx
 
 if t.TYPE_CHECKING:
+    from src.blood_splatter import BloodSplatter
     from src.enums import State
     from src.fireball import FireBall
     from src.player import Player
-    from src.projectiles import Bullet, Coin, CoreEject
+    from src.projectiles import Bullet, Coin, CoreEject, Explosion
     from src.ui import FXManager
     from src.utils import Camera
 
@@ -57,6 +58,8 @@ shotgun_bullets: list[Bullet]
 coins: list[Coin]
 fireballs: list[FireBall]
 cores: list[CoreEject]
+explosions: list[Explosion]
+blood_splatters: list[BloodSplatter]
 
 # Flags
 is_world_frozen: bool

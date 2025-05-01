@@ -39,6 +39,8 @@ class World:
         shared.coins = []
         shared.fireballs = []
         shared.cores = []
+        shared.explosions = []
+        shared.blood_splatters = []
         utils.make_entities_from_tmx(
             f"assets/map_{shared.level_no}.tmx", type_factory=ENTITIES
         )
@@ -214,6 +216,8 @@ class World:
             utils.updater(shared.coins)
             utils.updater(shared.fireballs)
             utils.updater(shared.cores)
+            utils.updater(shared.explosions)
+            utils.updater(shared.blood_splatters)
 
         if shared.next_state is not None:
             self.clear_world()
@@ -242,6 +246,8 @@ class World:
         utils.drawer(shared.coins)
         utils.drawer(shared.fireballs)
         utils.drawer(shared.cores)
+        utils.drawer(shared.explosions)
+        utils.drawer(shared.blood_splatters)
 
         shared.player.draw_fist()
         for obj in Portal.objects:

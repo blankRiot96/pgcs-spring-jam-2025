@@ -9,9 +9,8 @@ How to wrap up the game?
 
 Going towards that plan:
 - Add blood splatter & heal
-- Add shotgun alt click
 - Add nailgun
 
-- For final fight make a shitty gabriel
+- Work on gabriel final fight
 - Add a save data level lock system
 - Add ranking

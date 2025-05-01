@@ -7,6 +7,7 @@ import typing as t
 import pygame
 
 from src import shared, utils
+from src.blood_splatter import BloodSplatter
 from src.fireball import FireBall
 from src.ui import CoinLineEffect, Flash
 
@@ -114,6 +115,7 @@ class Soldier:
         if self.health <= 0:
             try:
                 Soldier.objects.remove(self)
+                shared.blood_splatters.append(BloodSplatter(self.rect.center, 100))
             except ValueError:
                 pass
 

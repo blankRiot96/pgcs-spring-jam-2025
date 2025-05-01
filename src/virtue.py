@@ -7,6 +7,7 @@ import typing as t
 import pygame
 
 from src import shared, utils
+from src.blood_splatter import BloodSplatter
 from src.ui import CoinLineEffect, Flash
 
 if t.TYPE_CHECKING:
@@ -143,6 +144,8 @@ class Virtue:
         if self.health <= 0:
             try:
                 Virtue.objects.remove(self)
+                shared.blood_splatters.append(BloodSplatter(self.rect.center, 100))
+
             except ValueError:
                 pass
 

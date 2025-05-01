@@ -7,6 +7,7 @@ import typing as t
 import pygame
 
 from src import shared, utils
+from src.blood_splatter import BloodSplatter
 from src.ui import CoinLineEffect, Flash
 
 if t.TYPE_CHECKING:
@@ -44,6 +45,7 @@ class Filth:
         self.spawn_images = itertools.cycle([self.white_image, image])
 
         self.dx, self.dy = 0, 0
+        self.damage_cooldown = utils.CooldownTimer(1.0)
 
     def move(self):
         self.dy += self.gravity.velocity * shared.dt
@@ -74,10 +76,15 @@ class Filth:
         self.pos = self.collider.pos
 
     def check_player_collide(self):
-        if self.collider.rect.move(self.dx, self.dy).colliderect(
-            shared.player.collider.rect
+        self.damage_cooldown.update()
+        if (
+            self.collider.rect.move(self.dx, self.dy).colliderect(
+                shared.player.collider.rect
+            )
+            and not self.damage_cooldown.is_cooling_down
         ):
             shared.player.health -= Filth.DAMAGE
+            self.damage_cooldown.start()
 
     def jump(self):
         if (
@@ -146,6 +153,7 @@ class Filth:
         if self.health <= 0:
             try:
                 Filth.objects.remove(self)
+                shared.blood_splatters.append(BloodSplatter(self.rect.center, 100))
             except ValueError:
                 pass
 

@@ -12,6 +12,47 @@ from src.soldier import Soldier
 from src.virtue import Virtue
 
 
+class Explosion:
+    RADIUS = 16 * 5
+    DURATION = 2.0
+    DAMAGE = 500
+
+    def __init__(self, center) -> None:
+        self.center = pygame.Vector2(center)
+        self.image = utils.circle_surf(Explosion.RADIUS, shared.PALETTE["yellow"])
+        self.image.set_alpha(150)
+        self.rect = self.image.get_rect(center=self.center)
+
+        self.start = time.perf_counter()
+        self.first = True
+        self.alive = True
+
+    def update(self):
+        if self.first:
+
+            for obj in (
+                Filth.objects + Maurice.objects + Soldier.objects + Virtue.objects
+            ):
+                if obj.rect.colliderect(self.rect):
+                    obj.health -= Explosion.DAMAGE
+
+            self.first = False
+
+        diff = time.perf_counter() - self.start
+        amount = diff / Explosion.DURATION
+
+        if amount >= 1:
+            self.alive = False
+
+        amount = min(1.0, amount)
+
+        alpha = (1 - amount) * 150
+        self.image.set_alpha(int(alpha))
+
+    def draw(self):
+        shared.screen.blit(self.image, shared.camera.transform(self.rect))
+
+
 class CoreEject:
     MAX_TAIL_SIZE = 15
     MAX_SIZE_SECONDS = 1.0
@@ -52,11 +93,19 @@ class CoreEject:
 
         start = self.pos.copy()
         self.dy += (shared.WORLD_GRAVITY / 4) * shared.dt
+
         self.pos += pygame.Vector2(self.dx, self.dy) * shared.dt
         self.direction = utils.rad_to(start, self.pos)
 
+        for obj in Filth.objects + Maurice.objects + Soldier.objects + Virtue.objects:
+            if obj.rect.colliderect(self.rect):
+                self.alive = False
+
         if time.perf_counter() - self.start >= self.seconds:
             self.alive = False
+
+        if not self.alive:
+            shared.explosions.append(Explosion(self.rect.center))
 
     def points(self) -> list[pygame.Vector2]:
         ratio = min(1, (time.perf_counter() - self.start) / Coin.MAX_SIZE_SECONDS)
