@@ -7,33 +7,26 @@ import typing as t
 import pygame
 
 from src import shared, utils
+from src.fireball import FireBall
 from src.ui import CoinLineEffect, Flash
 
 if t.TYPE_CHECKING:
     from src.spawner import EntitySpawner
 
 
-class Filth:
+class Maurice:
     objects: list[t.Self] = []
     spawner: EntitySpawner
 
-    SPEED = 30.0
-    PLAYER_PROXIMITY_DIST = 100
-    JUMP_VELOCITY = -70
-
-    DAMAGE = 100
+    SPEED = 2
 
     def __init__(self, pos, image: pygame.Surface) -> None:
-        Filth.objects.append(self)
+        Maurice.objects.append(self)
         self.original_image = image
         self.image = image
         self.pos = pygame.Vector2(pos)
-        self.health = 100
-        self.collider = utils.Collider(pos, self.image.get_size())
-        utils.Collider.all_colliders.remove(self.collider)
-        self.rect = self.collider.rect
-        self.gravity = utils.Gravity()
-        self.touched_ground = True
+        self.health = 500
+        self.rect = self.image.get_rect(topleft=self.pos)
 
         self.spawn_start_time: float | None = None
         self.spawn_animation_timer = utils.Timer(0.2)
@@ -43,60 +36,54 @@ class Filth:
 
         self.spawn_images = itertools.cycle([self.white_image, image])
 
-        self.dx, self.dy = 0, 0
+        self.first_spawn = True
 
-    def move(self):
-        self.dy += self.gravity.velocity * shared.dt
-
-        dir = 1 if shared.player.collider.pos.x > self.collider.pos.x else -1
-        self.dx += Filth.SPEED * dir * shared.dt
-
-    def check_tile_collisions(self):
-        collider_data = self.collider.get_collision_data(self.dx, self.dy)
-
-        if (
-            utils.CollisionSide.BOTTOM in collider_data.colliders
-            or utils.CollisionSide.TOP in collider_data.colliders
-        ):
-            self.gravity.velocity = 0
-            self.dy = 0
-
-        if utils.CollisionSide.BOTTOM in collider_data.colliders:
-            self.touched_ground = True
-
-        if (
-            utils.CollisionSide.RIGHT in collider_data.colliders
-            or utils.CollisionSide.LEFT in collider_data.colliders
-        ):
-            self.dx = 0
-
-        self.collider.pos += self.dx, self.dy
-        self.pos = self.collider.pos
-
-    def check_player_collide(self):
-        if self.collider.rect.move(self.dx, self.dy).colliderect(
-            shared.player.collider.rect
-        ):
-            shared.player.health -= Filth.DAMAGE
-
-    def jump(self):
-        if (
-            self.collider.pos.distance_to(shared.player.collider.pos)
-            < Filth.PLAYER_PROXIMITY_DIST
-            and self.touched_ground
-        ):
-            self.gravity.velocity = Filth.JUMP_VELOCITY
-            self.touched_ground = False
+        self.triplet_spawn_start = time.perf_counter()
+        self.gate1, self.gate2 = True, True
 
     def handle_punch(self):
         if (
             shared.player.punch_timer.is_cooling_down
-            and pygame.Vector2(self.collider.rect.center).distance_to(
+            and pygame.Vector2(self.rect.center).distance_to(
                 shared.player.collider.rect.center
             )
             < 32
         ):
             self.health -= 100
+
+    def create_fireball(self):
+        shared.fireballs.append(
+            FireBall(
+                self.rect.center,
+                -utils.rad_to(
+                    pygame.Vector2(self.rect.center),
+                    pygame.Vector2(shared.player.collider.rect.center),
+                ),
+                40,
+            )
+        )
+
+    def fireball(self):
+        diff = time.perf_counter() - self.triplet_spawn_start
+        if diff > 3.5:
+            self.create_fireball()
+            self.gate1 = True
+            self.gate2 = True
+            self.triplet_spawn_start = time.perf_counter()
+
+        elif diff > 3.25 and self.gate2:
+            self.create_fireball()
+            self.gate2 = False
+
+        elif diff > 3 and self.gate1:
+            self.create_fireball()
+            self.gate1 = False
+
+    def move(self):
+        self.pos.move_towards_ip(
+            shared.player.collider.rect.center, Maurice.SPEED * shared.dt
+        )
+        self.rect.topleft = self.pos
 
     def update(self):
         if not self.spawner.activated:
@@ -111,16 +98,12 @@ class Filth:
         else:
             self.image = self.original_image
 
-        self.gravity.update()
-        self.handle_damage()
+            if self.first_spawn:
+                self.first_spawn = False
 
-        self.dx, self.dy = 0, 0
-        self.jump()
-        self.move()
-        self.check_player_collide()
-        self.check_tile_collisions()
+        self.handle_damage()
         self.handle_punch()
-        self.rect = self.collider.rect
+        self.fireball()
 
     def on_bullet_collide(self, bullet):
         self.health -= bullet.damage
@@ -143,9 +126,10 @@ class Filth:
             if fireball.rect.colliderect(self.rect):
                 self.health -= fireball.DAMAGE
                 fireball.alive = False
+
         if self.health <= 0:
             try:
-                Filth.objects.remove(self)
+                Maurice.objects.remove(self)
             except ValueError:
                 pass
 
@@ -153,4 +137,4 @@ class Filth:
         if not self.spawner.activated:
             return
 
-        shared.screen.blit(self.image, shared.camera.transform(self.collider.pos))
+        shared.screen.blit(self.image, shared.camera.transform(self.pos))

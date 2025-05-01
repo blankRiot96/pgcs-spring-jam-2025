@@ -119,9 +119,9 @@ class Virtue:
         if self.strike_rect.colliderect(shared.player.collider.rect):
             shared.player.health = 0
 
-    def on_bullet_collide(self, bullet, gun):
+    def on_bullet_collide(self, bullet):
         self.health -= bullet.damage
-        gun.bullets.remove(bullet)
+        bullet.alive = False
 
         if bullet.coin_history:
             points = [shared.player.collider.pos] + bullet.coin_history + [self.pos]
@@ -129,11 +129,17 @@ class Virtue:
             shared.fx_manager.flashes.append(Flash())
 
     def handle_damage(self):
-        for gun in shared.player.guns.values():
-            for bullet in gun.bullets:
-                if self.rect.colliderect(bullet.collider_rect):
-                    self.on_bullet_collide(bullet, gun)
+        for bullet in shared.shotgun_bullets + shared.pistol_bullets:
+            if self.rect.colliderect(bullet.collider_rect):
+                self.on_bullet_collide(bullet)
 
+        for fireball in shared.fireballs:
+            if not fireball.boosted:
+                continue
+
+            if fireball.rect.colliderect(self.rect):
+                self.health -= fireball.DAMAGE
+                fireball.alive = False
         if self.health <= 0:
             try:
                 Virtue.objects.remove(self)

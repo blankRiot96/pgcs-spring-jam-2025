@@ -7,6 +7,7 @@ import pygame
 from src import shared, utils
 from src.enums import State
 from src.guns import GunState, Pistol, Shotgun
+from src.ui import Flash
 
 
 class Player:
@@ -95,7 +96,21 @@ class Player:
             )
 
         if self.punch_timer.is_cooling_down:
-            pass
+            for fireball in shared.fireballs:
+                if fireball.boosted:
+                    continue
+
+                if (
+                    pygame.Vector2(fireball.rect.center).distance_to(
+                        self.collider.rect.center
+                    )
+                    < 40
+                ):
+                    shared.fx_manager.flashes.append(Flash(0.3))
+                    fireball.radians = -utils.rad_to_mouse(self.collider.rect.center)
+                    fireball.speed *= 2
+                    fireball.boosted = True
+                    self.health = Player.MAX_HEALTH
 
     def switch_gun_to(self, gun_name: str):
         for gname, gun in shared.player.guns.items():
@@ -151,3 +166,4 @@ class Player:
             image = pygame.transform.rotate(image, angle)
 
         shared.screen.blit(image, shared.camera.transform(self.collider.rect))
+        # utils.debug_rect(self.collider.rect)

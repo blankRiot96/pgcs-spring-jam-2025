@@ -8,7 +8,10 @@ How to wrap up the game?
 * Just add gravity wells and portals and more enemies and call it a day. 
 
 Going towards that plan:
-- Add maurice
+- Add blood splatter & heal
+- Add shotgun alt click
+- Add nailgun
+
 - For final fight make a shitty gabriel
 - Add a save data level lock system
 - Add ranking

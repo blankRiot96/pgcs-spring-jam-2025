@@ -9,7 +9,7 @@ if t.TYPE_CHECKING:
     from src.enums import State
     from src.fireball import FireBall
     from src.player import Player
-    from src.projectiles import Bullet, Coin
+    from src.projectiles import Bullet, Coin, CoreEject
     from src.ui import FXManager
     from src.utils import Camera
 
@@ -36,8 +36,8 @@ camera: Camera
 events: list[pygame.event.Event]
 mouse_pos: pygame.Vector2
 mouse_press: tuple[int, ...]
-mjr: tuple[int, ...]
-mjp: tuple[int, ...]
+mjr: tuple[bool, ...]
+mjp: tuple[bool, ...]
 keys: list[bool]
 kp: list[bool]
 kr: list[bool]
@@ -56,6 +56,7 @@ pistol_bullets: list[Bullet]
 shotgun_bullets: list[Bullet]
 coins: list[Coin]
 fireballs: list[FireBall]
+cores: list[CoreEject]
 
 # Flags
 is_world_frozen: bool

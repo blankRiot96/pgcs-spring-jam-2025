@@ -18,8 +18,6 @@ class Soldier:
     objects: list[t.Self] = []
     spawner: EntitySpawner
 
-    DAMAGE = 200
-
     def __init__(self, pos, image: pygame.Surface) -> None:
         Soldier.objects.append(self)
         self.original_image = image
@@ -27,8 +25,6 @@ class Soldier:
         self.pos = pygame.Vector2(pos)
         self.health = 100
         self.rect = self.image.get_rect(topleft=self.pos)
-        self.gravity = utils.Gravity()
-        self.touched_ground = True
 
         self.spawn_start_time: float | None = None
         self.spawn_animation_timer = utils.Timer(0.2)
@@ -41,7 +37,6 @@ class Soldier:
         self.charge_timer = utils.CooldownTimer(3.0)
         self.fireball_image = utils.load_image("assets/fireball.png", True, bound=True)
         self.fireball_rect = self.fireball_image.get_rect(midbottom=self.rect.midtop)
-        self.fireballs: list[FireBall] = []
 
         self.first_spawn = True
 
@@ -61,7 +56,7 @@ class Soldier:
         if self.charge_timer.is_cooling_down:
             return
 
-        self.fireballs.append(
+        shared.fireballs.append(
             FireBall(
                 self.fireball_rect.topleft,
                 -utils.rad_to(
@@ -90,20 +85,13 @@ class Soldier:
                 self.charge_timer.start()
                 self.first_spawn = False
 
-        self.gravity.update()
         self.handle_damage()
         self.handle_punch()
         self.fireball()
 
-        for fireball in self.fireballs[:]:
-            fireball.update()
-
-            if not fireball.alive:
-                self.fireballs.remove(fireball)
-
-    def on_bullet_collide(self, bullet, gun):
+    def on_bullet_collide(self, bullet):
         self.health -= bullet.damage
-        gun.bullets.remove(bullet)
+        bullet.alive = False
 
         if bullet.coin_history:
             points = [shared.player.collider.pos] + bullet.coin_history + [self.pos]
@@ -111,10 +99,17 @@ class Soldier:
             shared.fx_manager.flashes.append(Flash())
 
     def handle_damage(self):
-        for gun in shared.player.guns.values():
-            for bullet in gun.bullets:
-                if self.rect.colliderect(bullet.collider_rect):
-                    self.on_bullet_collide(bullet, gun)
+        for bullet in shared.shotgun_bullets + shared.pistol_bullets:
+            if self.rect.colliderect(bullet.collider_rect):
+                self.on_bullet_collide(bullet)
+
+        for fireball in shared.fireballs:
+            if not fireball.boosted:
+                continue
+
+            if fireball.rect.colliderect(self.rect):
+                self.health -= fireball.DAMAGE
+                fireball.alive = False
 
         if self.health <= 0:
             try:
@@ -135,6 +130,3 @@ class Soldier:
             mrect = morphed.get_rect(center=self.fireball_rect.center)
 
             shared.screen.blit(morphed, shared.camera.transform(mrect))
-
-        for fireball in self.fireballs:
-            fireball.draw()

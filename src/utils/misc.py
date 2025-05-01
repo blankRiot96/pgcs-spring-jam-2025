@@ -10,6 +10,19 @@ import pygame
 from src import shared
 
 
+def updater(entities):
+    for entity in entities[:]:
+        entity.update()
+
+        if not entity.alive:
+            entities.remove(entity)
+
+
+def drawer(entities):
+    for entity in entities:
+        entity.draw()
+
+
 def rad_to_mouse(pos: t.Sequence):
     return math.atan2(
         (shared.mouse_pos[1] + shared.camera.offset.y) - pos[1],
@@ -29,7 +42,7 @@ def bound_image(image: pygame.Surface):
     return image.subsurface(image.get_bounding_rect())
 
 
-def debug_rect(rect: pygame.Rect):
+def debug_rect(rect: pygame.typing.RectLike):
     pygame.draw.rect(shared.screen, "red", shared.camera.transform(rect), 1)
 
 

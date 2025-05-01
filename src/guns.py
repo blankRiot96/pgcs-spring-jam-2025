@@ -1,11 +1,12 @@
 import math
+import random
 import time
 from enum import Enum, auto
 
 import pygame
 
 from src import shared, utils
-from src.projectiles import Bullet, Coin
+from src.projectiles import Bullet, Coin, CoreEject
 
 
 class GunState(Enum):
@@ -28,9 +29,12 @@ class Shotgun:
             self.pos, (shared.TILE_SIDE, shared.TILE_SIDE)
         ).center
         self.state = GunState.GROUND
-        self.bullets: list[Bullet] = []
         self.cooldown = utils.CooldownTimer(Shotgun.COOLDOWN)
         shared.player.guns["shotgun"] = self
+
+        self.charging_alt = False
+        self.charged_amount = 0
+        self.charge_start = time.perf_counter()
 
     def on_ground(self):
         pass
@@ -44,15 +48,15 @@ class Shotgun:
             (shared.mouse_pos[1] + shared.camera.offset.y) - y,
             (shared.mouse_pos[0] + shared.camera.offset.x) - x,
         )
-        angular_space = math.pi / 32
+        angular_space = math.pi / 128
         for offset in range(-2, 3):
-            self.bullets.append(
+            shared.shotgun_bullets.append(
                 Bullet(
                     (x, y),
                     angle + (offset * angular_space),
                     200,
                     1.0,
-                    30,
+                    70,
                 )
             )
 
@@ -64,14 +68,27 @@ class Shotgun:
             self.fire_shotgun()
             self.cooldown.start()
 
-        for bullet in self.bullets[:]:
-            bullet.update()
-
-            if not bullet.alive:
-                self.bullets.remove(bullet)
-
     def on_equipped(self):
         self.rect.center = shared.player.collider.rect.center
+
+        self.charging_alt = shared.mouse_press[2]
+        if shared.mjp[2]:
+            self.charge_start = time.perf_counter()
+
+        if self.charging_alt:
+            diff = time.perf_counter() - self.charge_start
+            self.charged_amount = (diff - 0.5) / 1.3
+            self.charged_amount = min(1, self.charged_amount)
+            self.charged_amount = max(0, self.charged_amount)
+
+        if shared.mjr[2]:
+            shared.cores.append(
+                CoreEject.from_mouse(
+                    shared.player.collider.rect.center, 250 * self.charged_amount, 2.0
+                )
+            )
+            self.charged_amount = 0
+
         self.update_bullets()
 
     def check_state(self):
@@ -110,17 +127,31 @@ class Shotgun:
         elif self.state == GunState.GROUND:
             shared.screen.blit(self.image, shared.camera.transform(self.rect))
 
+    def draw_alt_charge_indicator(self):
+        if not (self.charging_alt and self.state == GunState.EQUIPPED):
+            return
+
+        height = self.charged_amount * 12
+        color = pygame.Color("white").lerp(
+            shared.PALETTE["yellow"], self.charged_amount
+        )
+        rect = pygame.Rect((0, 0), (3, height))
+        px, py = shared.player.collider.rect.midleft
+        shake_pixels = self.charged_amount * 2
+        rect.midright = (px - 5, py) + pygame.Vector2(
+            shake_pixels * random.randint(-1, 1), shake_pixels * random.randint(-1, 1)
+        )
+        pygame.draw.rect(shared.screen, color, shared.camera.transform(rect))
+
     def draw(self):
         self.draw_gun()
-
-        for bullet in self.bullets:
-            bullet.draw()
+        self.draw_alt_charge_indicator()
 
 
 class Pistol:
     objects = []
 
-    COOLDOWN = 0.1
+    COOLDOWN = 1.0
 
     def __init__(self, pos, image) -> None:
         Pistol.objects.append(self)
@@ -131,8 +162,6 @@ class Pistol:
             self.pos, (shared.TILE_SIDE, shared.TILE_SIDE)
         ).center
         self.state = GunState.GROUND
-        self.coins: list[Coin] = []
-        self.bullets: list[Bullet] = []
         self.cooldown = utils.CooldownTimer(Pistol.COOLDOWN)
         shared.player.guns["pistol"] = self
 
@@ -144,7 +173,7 @@ class Pistol:
 
     def update_coins(self):
         if shared.mjp[2] or shared.kp[pygame.K_0]:
-            self.coins.append(
+            shared.coins.append(
                 Coin.from_mouse(
                     shared.player.collider.rect.center,
                     50,
@@ -152,27 +181,15 @@ class Pistol:
                 )
             )
 
-        for coin in self.coins[:]:
-            coin.update()
-
-            if not coin.alive:
-                self.coins.remove(coin)
-
     def update_bullets(self):
         self.cooldown.update()
         if (
             shared.mjp[0] or shared.kp[pygame.K_9]
         ) and not self.cooldown.is_cooling_down:
-            self.bullets.append(
+            shared.pistol_bullets.append(
                 Bullet.from_mouse(shared.player.collider.rect.center, 200, 1.0, 200)
             )
             self.cooldown.start()
-
-        for bullet in self.bullets[:]:
-            bullet.update()
-
-            if not bullet.alive:
-                self.bullets.remove(bullet)
 
     def on_equipped(self):
         self.rect.center = shared.player.collider.rect.center
@@ -217,9 +234,3 @@ class Pistol:
 
     def draw(self):
         self.draw_gun()
-
-        for coin in self.coins:
-            coin.draw()
-
-        for bullet in self.bullets:
-            bullet.draw()

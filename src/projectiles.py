@@ -7,8 +7,84 @@ import pygame
 
 from src import shared, utils
 from src.filth import Filth
+from src.maurice import Maurice
 from src.soldier import Soldier
 from src.virtue import Virtue
+
+
+class CoreEject:
+    MAX_TAIL_SIZE = 15
+    MAX_SIZE_SECONDS = 1.0
+
+    def __init__(self, pos, radians, speed, seconds) -> None:
+        self.pos = pygame.Vector2(pos)
+        self.radians = radians
+        self.original_speed = speed
+        self.speed = speed
+        self.seconds = seconds
+        self.start = time.perf_counter()
+        self.direction = self.radians
+        self.alive = True
+        self.image = utils.load_image("assets/core_eject.png", True, bound=True)
+        self.rect = self.image.get_rect()
+        self.rcenter = pygame.Vector2(self.rect.center)
+
+        self.dx = math.cos(self.radians) * self.speed
+        self.dy = math.sin(self.radians) * self.speed
+
+        self.trail_points: list[pygame.Vector2] = []
+
+    @classmethod
+    def from_mouse(cls, pos, speed, seconds):
+        return cls(
+            pos,
+            math.atan2(
+                (shared.mouse_pos[1] + shared.camera.offset.y) - pos[1],
+                (shared.mouse_pos[0] + shared.camera.offset.x) - pos[0],
+            ),
+            speed,
+            seconds,
+        )
+
+    def update(self):
+        self.rect.center = self.pos
+        self.rcenter = pygame.Vector2(self.rect.center)
+
+        start = self.pos.copy()
+        self.dy += (shared.WORLD_GRAVITY / 4) * shared.dt
+        self.pos += pygame.Vector2(self.dx, self.dy) * shared.dt
+        self.direction = utils.rad_to(start, self.pos)
+
+        if time.perf_counter() - self.start >= self.seconds:
+            self.alive = False
+
+    def points(self) -> list[pygame.Vector2]:
+        ratio = min(1, (time.perf_counter() - self.start) / Coin.MAX_SIZE_SECONDS)
+        tail_size = Coin.MAX_TAIL_SIZE * ratio
+
+        head = self.pos.copy()
+        tail = utils.move_towards_rad(head, -self.direction, tail_size)
+
+        angle_offset = math.pi / 64
+        left_wing = utils.move_towards_rad(
+            head, -self.direction - angle_offset, tail_size / 1.1
+        )
+
+        right_wing = utils.move_towards_rad(
+            head, -self.direction + angle_offset, tail_size / 1.1
+        )
+
+        return [left_wing, head, right_wing, tail]
+
+    def draw(self):
+        points = self.points()
+        pygame.draw.polygon(
+            shared.screen,
+            shared.PALETTE["yellow"],
+            [shared.camera.transform(pos) for pos in points],
+        )
+        self.rect.center = utils.get_mid_point(points[0], points[2])
+        shared.screen.blit(self.image, shared.camera.transform(self.rect))
 
 
 class Bullet:
@@ -131,15 +207,18 @@ class Coin:
         bullet.coin_history.append(coin.pos)
 
     def on_bullet_collide(self):
-        for bullet in shared.player.guns["pistol"].bullets:
+        for bullet in shared.pistol_bullets:
             if self.rect.colliderect(bullet.collider_rect):
                 closest_coin = bullet.get_closest_entity(
-                    shared.player.guns["pistol"].coins, reject=self  # type: ignore
+                    shared.coins, reject=self  # type: ignore
                 )
                 closest_target = bullet.get_closest_entity(
                     [
                         obj
-                        for obj in Filth.objects + Virtue.objects + Soldier.objects
+                        for obj in Filth.objects
+                        + Virtue.objects
+                        + Soldier.objects
+                        + Maurice.objects
                         if obj.spawner.activated
                     ]
                 )

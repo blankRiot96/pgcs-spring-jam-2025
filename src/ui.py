@@ -43,18 +43,17 @@ class PlayerGunCooldownIndicator:
 
 
 class Flash:
-    DURATION = 0.7
-
-    def __init__(self) -> None:
+    def __init__(self, duration: float = 0.7) -> None:
         shared.is_world_frozen = True
         self.alive = True
         self.start = time.perf_counter()
         self.image = pygame.Surface(shared.srect.size, pygame.SRCALPHA)
         self.image.fill("white")
         self.image.set_alpha(50)
+        self.duration = duration
 
     def update(self):
-        if time.perf_counter() - self.start >= Flash.DURATION:
+        if time.perf_counter() - self.start >= self.duration:
             shared.is_world_frozen = False
             self.alive = False
 
@@ -69,7 +68,7 @@ class CoinLineEffect:
         self.alive = True
 
     def update(self):
-        if time.perf_counter() - self.start > Flash.DURATION:
+        if time.perf_counter() - self.start > shared.fx_manager.flashes[0].duration:
             self.alive = False
 
     def draw(self):

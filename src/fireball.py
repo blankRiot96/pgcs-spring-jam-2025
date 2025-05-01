@@ -13,8 +13,10 @@ class FireBall:
         self.radians = radians
         self.pos = pygame.Vector2(pos)
         self.alive = True
+        self.boosted = False
 
     def update(self):
+
         self.pos = utils.move_towards_rad(
             self.pos, self.radians, self.speed * shared.dt
         )
@@ -34,3 +36,4 @@ class FireBall:
 
     def draw(self):
         shared.screen.blit(self.image, shared.camera.transform(self.pos))
+        # utils.debug_rect(self.rect)
