@@ -4,7 +4,8 @@ from src import shared, utils
 from src.decorations import Decoration, FGDecoration, Note
 from src.door import HellPit
 from src.filth import Filth
-from src.guns import Pistol, Shotgun
+from src.gabriel import Gabriel
+from src.guns import GunState, Pistol, SawbladeLauncher, Shotgun
 from src.hitting_target import HittingTarget
 from src.maurice import Maurice
 from src.player import Player
@@ -20,6 +21,7 @@ ENTITIES: list[utils.EntityType] = [
     HittingTarget,
     Pistol,
     Shotgun,
+    SawbladeLauncher,
     HellPit,
     Decoration,
     FGDecoration,
@@ -27,6 +29,7 @@ ENTITIES: list[utils.EntityType] = [
     Maurice,
     Soldier,
     Virtue,
+    Gabriel,
 ]
 
 
@@ -41,14 +44,37 @@ class World:
         shared.cores = []
         shared.explosions = []
         shared.blood_splatters = []
+        shared.sawblades = []
+        shared.magnets = []
         utils.make_entities_from_tmx(
             f"assets/map_{shared.level_no}.tmx", type_factory=ENTITIES
         )
+        self.get_save_weapons()
         self.make_note_objects()
         self.make_portals()
         self.make_spawners()
         self.make_gravity_wells()
         self.create_hell_gradient()
+
+    def get_save_weapons(self):
+        weapons = shared.save_data["weapons"]
+
+        def guip(weapon_name, gun_type):
+            if weapon_name not in weapons:
+                return
+
+            if gun_type.objects:
+                gun_type.objects[0].state = GunState.INVENTORY
+            else:
+                obj = gun_type(
+                    (0, 0),
+                    utils.load_image(f"assets/{weapon_name}.png", True, bound=True),
+                )
+                obj.state = GunState.INVENTORY
+
+        guip("pistol", Pistol)
+        guip("shotgun", Shotgun)
+        guip("sawblade", SawbladeLauncher)
 
     def make_portals(self):
         try:
@@ -104,6 +130,8 @@ class World:
             GravityWell((obj.x, obj.y), obj.width, obj.height, obj.properties["acc"])
 
     def create_hell_gradient(self):
+        if shared.level_no == shared.BOSS_LEVEL:
+            return
         n_layers = World.GRADIAL_LAYERS
         self.hell_gradient = pygame.Surface(
             (
@@ -218,6 +246,8 @@ class World:
             utils.updater(shared.cores)
             utils.updater(shared.explosions)
             utils.updater(shared.blood_splatters)
+            utils.updater(shared.sawblades)
+            utils.updater(shared.magnets)
 
         if shared.next_state is not None:
             self.clear_world()
@@ -228,17 +258,29 @@ class World:
                 obj.draw()
 
     def draw(self):
-        shared.screen.blit(
-            self.hell_gradient,
-            shared.camera.transform(
-                pygame.Vector2(-World.GRADIAL_LAYERS, -World.GRADIAL_LAYERS)
-                * shared.TILE_SIDE
-            ),
-        )
+        if shared.level_no != shared.BOSS_LEVEL:
+            shared.screen.blit(
+                self.hell_gradient,
+                shared.camera.transform(
+                    pygame.Vector2(-World.GRADIAL_LAYERS, -World.GRADIAL_LAYERS)
+                    * shared.TILE_SIDE
+                ),
+            )
         self.render_entities([Tile, Decoration, HittingTarget, HellPit])
         shared.player.draw()
         self.render_entities(
-            [Pistol, Shotgun, FGDecoration, Note, Filth, Soldier, Maurice, Virtue]
+            [
+                Pistol,
+                Shotgun,
+                SawbladeLauncher,
+                FGDecoration,
+                Note,
+                Filth,
+                Soldier,
+                Maurice,
+                Virtue,
+                Gabriel,
+            ]
         )
 
         utils.drawer(shared.pistol_bullets)
@@ -248,6 +290,8 @@ class World:
         utils.drawer(shared.cores)
         utils.drawer(shared.explosions)
         utils.drawer(shared.blood_splatters)
+        utils.drawer(shared.sawblades)
+        utils.drawer(shared.magnets)
 
         shared.player.draw_fist()
         for obj in Portal.objects:

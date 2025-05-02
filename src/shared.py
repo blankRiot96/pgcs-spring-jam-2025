@@ -10,7 +10,7 @@ if t.TYPE_CHECKING:
     from src.enums import State
     from src.fireball import FireBall
     from src.player import Player
-    from src.projectiles import Bullet, Coin, CoreEject, Explosion
+    from src.projectiles import Bullet, Coin, CoreEject, Explosion, Magnet, Sawblade
     from src.ui import FXManager
     from src.utils import Camera
 
@@ -27,6 +27,7 @@ PALETTE: dict[t.Literal["purple", "grey", "black", "yellow", "red", "red2"], str
     "red2": "#531811",
 }
 ENTITY_CLASS_IMAGES: dict[str, pygame.Surface] = {}
+BOSS_LEVEL = 2
 
 # Canvas
 screen: pygame.Surface
@@ -55,11 +56,17 @@ tmx_map: pytmx.TiledMap
 fx_manager: FXManager
 pistol_bullets: list[Bullet]
 shotgun_bullets: list[Bullet]
+sawblades: list[Sawblade]
 coins: list[Coin]
 fireballs: list[FireBall]
 cores: list[CoreEject]
 explosions: list[Explosion]
 blood_splatters: list[BloodSplatter]
+magnets: list[Magnet]
 
 # Flags
 is_world_frozen: bool
+
+
+# Config
+save_data: dict[str, list[str]]

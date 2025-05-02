@@ -24,7 +24,10 @@ class GameState:
         self.hud.update()
 
     def draw(self):
-        self.background.draw()
+        if shared.level_no != shared.BOSS_LEVEL:
+            self.background.draw()
+        else:
+            shared.screen.fill(shared.PALETTE["red2"])
         self.world.draw()
         self.hud.draw()
         shared.fx_manager.draw()

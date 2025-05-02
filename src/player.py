@@ -6,7 +6,7 @@ import pygame
 
 from src import shared, utils
 from src.enums import State
-from src.guns import GunState, Pistol, Shotgun
+from src.guns import GunState, Pistol, SawbladeLauncher, Shotgun
 from src.ui import Flash
 
 
@@ -18,7 +18,7 @@ class Player:
     DASH_VELOCITY = 200
 
     objects: list[t.Self] = []
-    guns: dict[str, Pistol | Shotgun] = {}
+    guns: dict[str, Pistol | Shotgun | SawbladeLauncher] = {}
 
     def __init__(self, pos, image):
         shared.player = self
@@ -35,7 +35,7 @@ class Player:
         self.punch_angle = 0.0
         self.pg_dwn = False
         self.punch_image = utils.load_image("assets/fist.png", True, bound=True)
-
+        self.jumps = 0
         self.health = Player.MAX_HEALTH
 
     def move(self):
@@ -52,7 +52,8 @@ class Player:
         dx, dy = 0, 0
         self.gravity.update()
 
-        if shared.kp[pygame.K_SPACE] or shared.kp[pygame.K_w]:
+        if (shared.kp[pygame.K_SPACE] or shared.kp[pygame.K_w]) and self.jumps < 2:
+            self.jumps += 1
             self.gravity.velocity = Player.JUMP_VELOCITY
 
         dx += shared.keys[pygame.K_d] - shared.keys[pygame.K_a]
@@ -72,6 +73,9 @@ class Player:
             self.gravity.velocity = 0
             dy = 0
 
+        if utils.CollisionSide.BOTTOM in collider_data.colliders:
+            self.jumps = 0
+
         if (
             utils.CollisionSide.RIGHT in collider_data.colliders
             or utils.CollisionSide.LEFT in collider_data.colliders
@@ -86,6 +90,9 @@ class Player:
             self.last_direction = "left"
 
         shared.camera.attach_to(self.collider.pos, smoothness_factor=1)
+
+        if self.collider.pos.y > (shared.tmx_map.height * shared.TILE_SIDE) + 1200:
+            self.health = 0
 
     def punch(self):
         self.punch_timer.update()
@@ -138,6 +145,7 @@ class Player:
         self.punch()
         self.check_gun_swap(pygame.K_q, "pistol")
         self.check_gun_swap(pygame.K_e, "shotgun")
+        self.check_gun_swap(pygame.K_x, "sawblade")
 
         if self.health <= 0:
             shared.next_state = State.GAME_OVER

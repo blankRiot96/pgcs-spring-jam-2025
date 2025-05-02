@@ -13,6 +13,7 @@ class Tile:
         self.collider = utils.Collider(pos, (shared.TILE_SIDE, shared.TILE_SIDE))
         Tile.objects.append(self)
         self.image = image
+        self.rect = self.collider.rect
 
     def update(self):
         pass

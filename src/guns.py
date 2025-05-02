@@ -1,12 +1,13 @@
 import math
 import random
 import time
+import typing as t
 from enum import Enum, auto
 
 import pygame
 
 from src import shared, utils
-from src.projectiles import Bullet, Coin, CoreEject
+from src.projectiles import Bullet, Coin, CoreEject, Magnet, Sawblade
 
 
 class GunState(Enum):
@@ -15,13 +16,94 @@ class GunState(Enum):
     INVENTORY = auto()
 
 
+class SawbladeLauncher:
+    objects: list[t.Self] = []
+
+    COOLDOWN = 0.2
+
+    def __init__(self, pos, image) -> None:
+        SawbladeLauncher.objects.append(self)
+        self.pos = pygame.Vector2(pos)
+        self.image = utils.bound_image(image)
+        self.rect = self.image.get_rect()
+        self.rect.center = pygame.Rect(
+            self.pos, (shared.TILE_SIDE, shared.TILE_SIDE)
+        ).center
+        self.state = GunState.GROUND
+        self.cooldown = utils.CooldownTimer(SawbladeLauncher.COOLDOWN)
+        shared.player.guns["sawblade"] = self
+
+    def on_ground(self):
+        pass
+
+    def on_inventory(self):
+        pass
+
+    def fire(self):
+        x, y = shared.player.collider.rect.center
+        blade = Sawblade.from_mouse((x, y), 200, 0.2, 30)
+        shared.sawblades.append(blade)
+
+    def update_bullets(self):
+        self.cooldown.update()
+        if shared.mouse_press[0] and not self.cooldown.is_cooling_down:
+            self.fire()
+            self.cooldown.start()
+
+    def on_equipped(self):
+        self.rect.center = shared.player.collider.rect.center
+        self.update_bullets()
+
+        if shared.mjp[2]:
+            shared.magnets.append(Magnet.from_mouse(self.rect.center, 50, 7.0))
+
+    def check_state(self):
+        if self.state in (GunState.EQUIPPED, GunState.INVENTORY):
+            return
+
+        if self.rect.colliderect(shared.player.collider.rect):
+            for gun in shared.player.guns.values():
+                if gun.state == GunState.EQUIPPED:
+                    gun.state = GunState.INVENTORY
+            shared.player.currently_equipped = "sawblade"
+            self.state = GunState.EQUIPPED
+
+    def update(self):
+        self.check_state()
+
+        if self.state == GunState.EQUIPPED:
+            self.on_equipped()
+
+    def draw_gun(self):
+        if self.state == GunState.EQUIPPED:
+            angle_to_mouse = math.atan2(
+                (shared.mouse_pos[1] + shared.camera.offset.y) - self.rect.centery,
+                (shared.mouse_pos[0] + shared.camera.offset.x) - self.rect.centerx,
+            )
+            angle_to_mouse = math.degrees(-angle_to_mouse)
+
+            if -90 < angle_to_mouse < 90:
+                image = self.image
+            else:
+                image = pygame.transform.flip(self.image, False, True)
+
+            rotated_image = pygame.transform.rotate(image, angle_to_mouse)
+            shared.screen.blit(rotated_image, shared.camera.transform(self.rect))
+
+        elif self.state == GunState.GROUND:
+            shared.screen.blit(self.image, shared.camera.transform(self.rect))
+
+    def draw(self):
+        self.draw_gun()
+
+
 class Shotgun:
     objects = []
 
     COOLDOWN = 0.7
 
     def __init__(self, pos, image) -> None:
-        Pistol.objects.append(self)
+        Shotgun.objects.append(self)
         self.pos = pygame.Vector2(pos)
         self.image = utils.bound_image(image)
         self.rect = self.image.get_rect()
@@ -84,7 +166,7 @@ class Shotgun:
         if shared.mjr[2]:
             shared.cores.append(
                 CoreEject.from_mouse(
-                    shared.player.collider.rect.center, 250 * self.charged_amount, 2.0
+                    shared.player.collider.rect.center, 100 * self.charged_amount, 0.5
                 )
             )
             self.charged_amount = 0

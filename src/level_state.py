@@ -12,6 +12,7 @@ class LevelWidget:
     WIGGLE_SPEED = 2
 
     def __init__(self, pos: tuple[int, int], level_no: int, level_name: str) -> None:
+        self.level_no = level_no
         self.pos = pygame.Vector2(pos)
         self.image = utils.load_image(
             "assets/level_widget_base.png", True, bound=True
@@ -79,6 +80,7 @@ class LevelWidget:
         self.handle_hover()
 
         if hovering and clicked:
+            shared.level_no = self.level_no
             shared.next_state = State.GAME
 
         self.offset_vector.move_towards_ip(

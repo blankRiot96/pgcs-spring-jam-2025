@@ -1,3 +1,4 @@
+import json
 import sys
 
 import pygame
@@ -9,7 +10,9 @@ from src.states import StateManager
 class Core:
     def __init__(self) -> None:
         self.win_init()
-        shared.level_no = 1
+        with open("save-data/data.json") as f:
+            shared.save_data = json.load(f)
+        shared.level_no = 2
         self.state_manager = StateManager()
 
     def win_init(self):
@@ -35,6 +38,10 @@ class Core:
         shared.mjr = pygame.mouse.get_just_released()
         shared.mjp = pygame.mouse.get_just_pressed()
         shared.mouse_press = pygame.mouse.get_pressed()
+
+    def write_save_data(self):
+        with open("assets/save-data/data.json", "w") as f:
+            json.dump(shared.save_data, f, indent=2)
 
     def check_for_exit(self):
         for event in shared.events:

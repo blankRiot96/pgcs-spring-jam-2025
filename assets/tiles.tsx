@@ -3,7 +3,7 @@
  <image source="tiles.png" width="160" height="160"/>
  <tile id="11" type="Coin"/>
  <tile id="12" type="Gabriel"/>
- <tile id="15" type="NailGun"/>
+ <tile id="15" type="SawbladeLauncher"/>
  <tile id="17" type="Maurice"/>
  <tile id="18" type="Virtue"/>
  <tile id="19" type="Soldier"/>

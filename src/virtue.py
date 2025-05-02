@@ -134,6 +134,10 @@ class Virtue:
             if self.rect.colliderect(bullet.collider_rect):
                 self.on_bullet_collide(bullet)
 
+        for blade in shared.sawblades:
+            if blade.rect.colliderect(self.rect):
+                self.health -= blade.damage
+
         for fireball in shared.fireballs:
             if not fireball.boosted:
                 continue

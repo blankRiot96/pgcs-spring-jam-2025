@@ -1,0 +1,13 @@
+{
+    "weapons": [
+        "shotgun",
+        "pistol",
+        "sawblade"
+    ],
+    "levels": [
+        "1",
+        "2",
+        "3",
+        "4"
+    ]
+}
