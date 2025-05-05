@@ -1,3 +1,4 @@
+import json
 import math
 import random
 import time
@@ -16,6 +17,11 @@ class GunState(Enum):
     INVENTORY = auto()
 
 
+def write_save_data():
+    with open("save-data/data.json", "w") as f:
+        json.dump(shared.save_data, f, indent=2)
+
+
 class SawbladeLauncher:
     objects: list[t.Self] = []
 
@@ -31,7 +37,8 @@ class SawbladeLauncher:
         ).center
         self.state = GunState.GROUND
         self.cooldown = utils.CooldownTimer(SawbladeLauncher.COOLDOWN)
-        shared.player.guns["sawblade"] = self
+        if hasattr(shared, "player"):
+            shared.player.guns["sawblade"] = self
 
     def on_ground(self):
         pass
@@ -41,8 +48,9 @@ class SawbladeLauncher:
 
     def fire(self):
         x, y = shared.player.collider.rect.center
-        blade = Sawblade.from_mouse((x, y), 200, 0.2, 30)
+        blade = Sawblade.from_mouse((x, y), 200, 0.2, 50)
         shared.sawblades.append(blade)
+        shared.sounds["sawblade"].play()
 
     def update_bullets(self):
         self.cooldown.update()
@@ -65,6 +73,10 @@ class SawbladeLauncher:
             for gun in shared.player.guns.values():
                 if gun.state == GunState.EQUIPPED:
                     gun.state = GunState.INVENTORY
+
+            shared.save_data["weapons"].append("sawblade")
+            write_save_data()
+            shared.player.guns["sawblade"] = self
             shared.player.currently_equipped = "sawblade"
             self.state = GunState.EQUIPPED
 
@@ -143,6 +155,8 @@ class Shotgun:
                 )
             )
 
+        shared.sounds["shotgun"].play()
+
     def update_bullets(self):
         self.cooldown.update()
         if (
@@ -182,6 +196,9 @@ class Shotgun:
             for gun in shared.player.guns.values():
                 if gun.state == GunState.EQUIPPED:
                     gun.state = GunState.INVENTORY
+
+            shared.save_data["weapons"].append("shotgun")
+            write_save_data()
             shared.player.currently_equipped = "shotgun"
             shared.player.guns["shotgun"] = self
             self.state = GunState.EQUIPPED
@@ -260,6 +277,7 @@ class Pistol:
         if shared.mjp[2] and shared.player.n_coins > 0:
             shared.player.n_coins -= 1
             shared.player.coin_loader_timedown.reset()
+            shared.sounds["coin"].play()
             shared.coins.append(
                 Coin.from_mouse(
                     shared.player.collider.rect.center,
@@ -270,9 +288,8 @@ class Pistol:
 
     def update_bullets(self):
         self.cooldown.update()
-        if (
-            shared.mjp[0] or shared.kp[pygame.K_9]
-        ) and not self.cooldown.is_cooling_down:
+        if shared.mjp[0] and not self.cooldown.is_cooling_down:
+            shared.sounds["pistol"].play()
             shared.pistol_bullets.append(
                 Bullet.from_mouse(shared.player.collider.rect.center, 200, 1.0, 200)
             )
@@ -291,6 +308,10 @@ class Pistol:
             for gun in shared.player.guns.values():
                 if gun.state == GunState.EQUIPPED:
                     gun.state = GunState.INVENTORY
+
+            shared.save_data["weapons"].append("pistol")
+            write_save_data()
+            shared.player.guns["pistol"] = self
             shared.player.currently_equipped = "pistol"
             self.state = GunState.EQUIPPED
 

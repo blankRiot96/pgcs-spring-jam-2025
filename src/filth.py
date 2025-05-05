@@ -123,13 +123,12 @@ class Filth:
         else:
             self.image = self.original_image
 
-        if self.is_out_of_view():
-            return
-
-        self.gravity.update()
         self.handle_damage()
 
+        if self.is_out_of_view():
+            return
         self.dx, self.dy = 0, 0
+        self.gravity.update()
         self.jump()
         self.move()
         self.check_player_collide()

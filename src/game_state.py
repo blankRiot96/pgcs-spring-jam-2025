@@ -1,3 +1,5 @@
+import pygame
+
 from src import shared, utils
 from src.background import Background
 from src.enums import State
@@ -15,6 +17,8 @@ class GameState:
         )
         self.world = World()
         self.hud = HUD()
+        pygame.mixer.music.load("assets/sounds/26.mp3")
+        pygame.mixer.music.play(loops=-1)
 
     def update(self):
         shared.fx_manager.update()

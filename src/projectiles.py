@@ -189,7 +189,7 @@ class Explosion:
 
     def update(self):
         if self.first:
-
+            shared.sounds["explosion"].play()
             for obj in (
                 Filth.objects
                 + Maurice.objects

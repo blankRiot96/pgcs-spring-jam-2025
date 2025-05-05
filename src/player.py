@@ -5,6 +5,7 @@ import typing as t
 import pygame
 
 from src import shared, utils
+from src.checkpoint import Checkpoint
 from src.enums import State
 from src.guns import GunState, Pistol, SawbladeLauncher, Shotgun
 from src.ui import Flash
@@ -61,6 +62,7 @@ class Player:
         if (shared.kp[pygame.K_SPACE] or shared.kp[pygame.K_w]) and self.jumps < 2:
             self.jumps += 1
             self.gravity.velocity = Player.JUMP_VELOCITY
+            shared.sounds["jump"].play()
 
         dx += shared.keys[pygame.K_d] - shared.keys[pygame.K_a]
         dx *= Player.MAX_HORIZONTAL_SPEED * shared.dt

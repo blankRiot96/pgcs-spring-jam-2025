@@ -14,9 +14,15 @@ class LevelWidget:
     def __init__(self, pos: tuple[int, int], level_no: int, level_name: str) -> None:
         self.level_no = level_no
         self.pos = pygame.Vector2(pos)
-        self.image = utils.load_image(
-            "assets/level_widget_base.png", True, bound=True
-        ).copy()
+        self.locked = self.level_no > shared.save_data["max_level"]
+        if not self.locked:
+            self.image = utils.load_image(
+                "assets/level_widget_base.png", True, bound=True
+            ).copy()
+        else:
+            self.image = utils.load_image(
+                "assets/locked_level.png", True, bound=True
+            ).copy()
 
         self.rect = self.image.get_rect(topleft=self.pos)
         self.font = utils.load_font(None, 32)
@@ -29,7 +35,8 @@ class LevelWidget:
         self.offset_vector = pygame.Vector2()
         self.gen_random_target_offset()
 
-        self.draw_info(level_no, level_name)
+        if not self.locked:
+            self.draw_info(level_no, level_name)
 
     def gen_random_target_offset(self):
         self.random_target_offset = pygame.Vector2(
@@ -37,7 +44,7 @@ class LevelWidget:
         )
 
     def draw_info(self, level_no: int, level_name: str):
-        level_image = utils.load_image(f"assets/level_1.png", False)
+        level_image = utils.load_image(f"assets/level_{level_no}.png", False)
         level_image = pygame.transform.scale(level_image, (100, 70))
 
         self.image.blit(level_image, (10, 5))
@@ -79,7 +86,7 @@ class LevelWidget:
 
         self.handle_hover()
 
-        if hovering and clicked:
+        if hovering and clicked and not self.locked:
             shared.level_no = self.level_no
             shared.next_state = State.GAME
 
@@ -101,9 +108,9 @@ class LevelState:
     def __init__(self) -> None:
         self.widgets: list[LevelWidget] = [
             LevelWidget((20, 60), 1, "INTO THE FIRE"),
-            LevelWidget((160, 60), 2, "GOD'S MISERY"),
-            LevelWidget((310, 60), 3, "AESTHETICS OF HATE"),
-            LevelWidget((450, 60), 4, "SHEER HATRED"),
+            LevelWidget((160, 60), 2, "SOMETHING WICKED"),
+            LevelWidget((310, 60), 3, "AN ANGEL'S VIRTUE"),
+            LevelWidget((450, 60), 4, "AESTHETICS OF HATE"),
         ]
 
         self.background = Background(

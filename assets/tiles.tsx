@@ -27,7 +27,7 @@
  <tile id="61" type="FGDecoration"/>
  <tile id="62" type="FGDecoration"/>
  <tile id="70" type="FGDecoration"/>
- <tile id="71" type="FGDecoration"/>
+ <tile id="71" type="Checkpoint"/>
  <tile id="72" type="FGDecoration"/>
  <tile id="77" type="Decoration"/>
  <tile id="79" type="Decoration"/>

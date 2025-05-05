@@ -4,6 +4,7 @@ from src import shared
 from src.enums import State
 from src.game_over_state import GameOverState
 from src.game_state import GameState
+from src.intro_state import IntroState
 from src.level_state import LevelState
 
 
@@ -16,12 +17,13 @@ class StateLike(t.Protocol):
 class StateManager:
     def __init__(self) -> None:
         self.state_dict: dict[State, t.Type[StateLike]] = {
+            State.INTRO_STATE: IntroState,
             State.LEVEL_SELECTOR: LevelState,
             State.GAME: GameState,
             State.GAME_OVER: GameOverState,
         }
 
-        shared.next_state = State.GAME
+        shared.next_state = State.INTRO_STATE
         self.set_state()
 
     def set_state(self):

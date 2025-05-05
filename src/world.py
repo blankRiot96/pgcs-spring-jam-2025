@@ -1,6 +1,7 @@
 import pygame
 
 from src import shared, utils
+from src.checkpoint import Checkpoint
 from src.decorations import Decoration, FGDecoration, Note
 from src.door import HellPit
 from src.filth import Filth, FilthyArea
@@ -30,6 +31,7 @@ ENTITIES: list[utils.EntityType] = [
     Soldier,
     Virtue,
     Gabriel,
+    Checkpoint,
 ]
 
 
@@ -59,6 +61,13 @@ class World:
         self.make_spawners()
         self.make_gravity_wells()
         self.create_hell_gradient()
+        self.load_checkpoint()
+
+    def load_checkpoint(self):
+        if shared.last_checkpoint is None:
+            return
+
+        shared.player.collider.pos = shared.last_checkpoint.pos
 
     def get_filthy_areas(self):
         try:
@@ -86,13 +95,15 @@ class World:
 
             if gun_type.objects:
                 gun_type.objects[0].state = GunState.INVENTORY
-                shared.player.guns[weapon_name] = gun_type.objects[0]
+
             else:
                 obj = gun_type(
                     (0, 0),
                     utils.load_image(f"assets/{weapon_name}.png", True, bound=True),
                 )
                 obj.state = GunState.INVENTORY
+
+            shared.player.guns[weapon_name] = gun_type.objects[0]
 
         guip("pistol", Pistol)
         guip("shotgun", Shotgun)
@@ -288,7 +299,7 @@ class World:
                     * shared.TILE_SIDE
                 ),
             )
-        self.render_entities([Tile, Decoration, HittingTarget, HellPit])
+        self.render_entities([Tile, Decoration, HittingTarget, HellPit, Checkpoint])
         shared.player.draw()
         self.render_entities(
             [

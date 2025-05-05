@@ -1,13 +1,18 @@
+Final Stretch:
 
-Okay, we've run out of time. Need to submit on May 2nd, Actually maybe even tomorrow.
+- Add cutscenes and intro
+    - Gabriel kills all humans
+        - Gabriel comes down to check on earth
+        - Sees people killing and torturing each other
+        - Disgusted, kills all of humanity
+    - Your beloved creator was killed. You decide to go to hell to find Gabriel 
+    - Intro: Earth has become hell. Kill to survive. Avenge humanity
+    - Reaching level 4 (BOSS FIGHT)
+        - Gabriel greets machine of steel
+        - On enrage: Talks about blasphemy 
+        - On death on gabriel, earth transforms, life begins to form again. You can rest now
+- Add sounds & BGM
 
-
-
-How to wrap up the game?
-
-* Just add gravity wells and portals and more enemies and call it a day. 
-
-Going towards that plan:
-- Make levels 1, 2, 3
-- Add a save data level lock system
-- Add ranking
+At 2AM:
+- Start building for windows and linux
+- Make game thumbnail

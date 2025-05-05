@@ -12,7 +12,7 @@ class Core:
         self.win_init()
         with open("save-data/data.json") as f:
             shared.save_data = json.load(f)
-        shared.level_no = 2
+        shared.last_checkpoint = None
         self.state_manager = StateManager()
 
     def win_init(self):

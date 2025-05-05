@@ -21,7 +21,7 @@ class Virtue:
     SPEED = 3
     WING_ROTATE_SPEED = 10
     ATTACK_FOLLOW_SPEED = 50
-    ATTACK_TIME = 3.0
+    ATTACK_TIME = 6.0
 
     def __init__(self, pos, image: pygame.Surface) -> None:
         Virtue.objects.append(self)
@@ -118,7 +118,7 @@ class Virtue:
 
     def on_damage_player(self):
         if self.strike_rect.colliderect(shared.player.collider.rect):
-            shared.player.health = 0
+            shared.player.health -= 500
 
     def on_bullet_collide(self, bullet):
         self.health -= bullet.damage

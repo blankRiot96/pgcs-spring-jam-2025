@@ -7,6 +7,7 @@ import pytmx
 
 if t.TYPE_CHECKING:
     from src.blood_splatter import BloodSplatter
+    from src.checkpoint import Checkpoint
     from src.enums import State
     from src.fireball import FireBall
     from src.player import Player
@@ -63,10 +64,17 @@ cores: list[CoreEject]
 explosions: list[Explosion]
 blood_splatters: list[BloodSplatter]
 magnets: list[Magnet]
+last_checkpoint: Checkpoint | None
 
 # Flags
 is_world_frozen: bool
 
-
 # Config
-save_data: dict[str, list[str]]
+save_data: dict
+
+# Sounds
+pygame.mixer.init()
+roll = ["checkpoint", "explosion", "jump", "sawblade", "pistol", "shotgun", "coin"]
+sounds: dict[str, pygame.Sound] = {
+    name: pygame.Sound(f"assets/sounds/{name}.wav") for name in roll
+}

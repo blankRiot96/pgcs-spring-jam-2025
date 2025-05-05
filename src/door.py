@@ -1,3 +1,4 @@
+import json
 import typing as t
 
 import pygame
@@ -18,6 +19,10 @@ class HellPit:
         )
         self.rect = self.image.get_rect(topleft=pos)
 
+    def write_save_data(self):
+        with open("save-data/data.json", "w") as f:
+            json.dump(shared.save_data, f, indent=2)
+
     def update(self):
         if shared.player.frozen:
             shared.player.collider.pos.y += HellPit.FALL_SPEED * shared.dt
@@ -28,6 +33,8 @@ class HellPit:
             ):
                 if shared.next_state is None:
                     shared.level_no += 1
+                    shared.save_data["max_level"] = shared.level_no
+                    self.write_save_data()
                     shared.next_state = State.GAME
         elif self.rect.colliderect(shared.player.collider.rect):
             shared.player.frozen = True
