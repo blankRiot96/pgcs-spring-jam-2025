@@ -16,6 +16,8 @@ class Player:
     MAX_HEALTH = 1000
     DASH_DURATION = 0.3
     DASH_VELOCITY = 200
+    MAX_COINS = 4
+    PUNCH_DAMAGE = 30
 
     objects: list[t.Self] = []
     guns: dict[str, Pistol | Shotgun | SawbladeLauncher] = {}
@@ -33,10 +35,14 @@ class Player:
         self.sliding = False
         self.punch_timer = utils.CooldownTimer(0.1)
         self.punch_angle = 0.0
+        self.just_punched = False
+        self.punch_cooldown = utils.CooldownTimer(0.7)
         self.pg_dwn = False
         self.punch_image = utils.load_image("assets/fist.png", True, bound=True)
         self.jumps = 0
         self.health = Player.MAX_HEALTH
+        self.n_coins = Player.MAX_COINS
+        self.coin_loader_timedown = utils.Timer(1.0)
 
     def move(self):
         if shared.mjp[3]:
@@ -95,8 +101,12 @@ class Player:
             self.health = 0
 
     def punch(self):
+        self.just_punched = False
+        self.punch_cooldown.update()
         self.punch_timer.update()
-        if shared.kp[pygame.K_f]:
+        if shared.kp[pygame.K_f] and not self.punch_cooldown.is_cooling_down:
+            self.punch_cooldown.start()
+            self.just_punched = True
             self.punch_timer.start()
             self.punch_angle = math.degrees(
                 utils.rad_to_mouse(self.collider.rect.center)
@@ -137,10 +147,15 @@ class Player:
             elif gun.state == GunState.INVENTORY:
                 self.switch_gun_to(gun_name)
 
+    def load_coins(self):
+        if self.coin_loader_timedown.tick() and self.n_coins < Player.MAX_COINS:
+            self.n_coins += 1
+
     def update(self):
         if self.frozen:
             return
 
+        self.load_coins()
         self.move()
         self.punch()
         self.check_gun_swap(pygame.K_q, "pistol")

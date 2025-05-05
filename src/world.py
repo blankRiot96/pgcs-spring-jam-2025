@@ -3,7 +3,7 @@ import pygame
 from src import shared, utils
 from src.decorations import Decoration, FGDecoration, Note
 from src.door import HellPit
-from src.filth import Filth
+from src.filth import Filth, FilthyArea
 from src.gabriel import Gabriel
 from src.guns import GunState, Pistol, SawbladeLauncher, Shotgun
 from src.hitting_target import HittingTarget
@@ -49,12 +49,33 @@ class World:
         utils.make_entities_from_tmx(
             f"assets/map_{shared.level_no}.tmx", type_factory=ENTITIES
         )
+        if shared.level_no == shared.BOSS_LEVEL:
+            Gabriel.objects[0].rng_attack()
+
+        self.get_filthy_areas()
         self.get_save_weapons()
         self.make_note_objects()
         self.make_portals()
         self.make_spawners()
         self.make_gravity_wells()
         self.create_hell_gradient()
+
+    def get_filthy_areas(self):
+        try:
+            filthy_layer = shared.tmx_map.get_layer_by_name("FilthyAreas")
+        except ValueError:
+            return
+
+        for obj in filthy_layer:  # type: ignore
+            area = FilthyArea((obj.x, obj.y), obj.width, obj.height)
+
+            for tile in Tile.objects:
+                if tile.rect.colliderect(area.rect):
+                    area.tiles.append(tile)
+
+            for filth in Filth.objects:
+                if filth.rect.colliderect(area.rect):
+                    filth.filthy_area = area
 
     def get_save_weapons(self):
         weapons = shared.save_data["weapons"]
@@ -65,6 +86,7 @@ class World:
 
             if gun_type.objects:
                 gun_type.objects[0].state = GunState.INVENTORY
+                shared.player.guns[weapon_name] = gun_type.objects[0]
             else:
                 obj = gun_type(
                     (0, 0),

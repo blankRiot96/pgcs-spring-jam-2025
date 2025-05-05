@@ -112,7 +112,8 @@ class Shotgun:
         ).center
         self.state = GunState.GROUND
         self.cooldown = utils.CooldownTimer(Shotgun.COOLDOWN)
-        shared.player.guns["shotgun"] = self
+        if hasattr(shared, "shotgun"):
+            shared.player.guns["shotgun"] = self
 
         self.charging_alt = False
         self.charged_amount = 0
@@ -157,13 +158,13 @@ class Shotgun:
         if shared.mjp[2]:
             self.charge_start = time.perf_counter()
 
+        diff = time.perf_counter() - self.charge_start
         if self.charging_alt:
-            diff = time.perf_counter() - self.charge_start
             self.charged_amount = (diff - 0.5) / 1.3
             self.charged_amount = min(1, self.charged_amount)
             self.charged_amount = max(0, self.charged_amount)
 
-        if shared.mjr[2]:
+        if shared.mjr[2] and (diff - 0.5) > 0:
             shared.cores.append(
                 CoreEject.from_mouse(
                     shared.player.collider.rect.center, 100 * self.charged_amount, 0.5
@@ -182,6 +183,7 @@ class Shotgun:
                 if gun.state == GunState.EQUIPPED:
                     gun.state = GunState.INVENTORY
             shared.player.currently_equipped = "shotgun"
+            shared.player.guns["shotgun"] = self
             self.state = GunState.EQUIPPED
 
     def update(self):
@@ -245,7 +247,8 @@ class Pistol:
         ).center
         self.state = GunState.GROUND
         self.cooldown = utils.CooldownTimer(Pistol.COOLDOWN)
-        shared.player.guns["pistol"] = self
+        if hasattr(shared, "player"):
+            shared.player.guns["pistol"] = self
 
     def on_ground(self):
         pass
@@ -254,7 +257,9 @@ class Pistol:
         pass
 
     def update_coins(self):
-        if shared.mjp[2] or shared.kp[pygame.K_0]:
+        if shared.mjp[2] and shared.player.n_coins > 0:
+            shared.player.n_coins -= 1
+            shared.player.coin_loader_timedown.reset()
             shared.coins.append(
                 Coin.from_mouse(
                     shared.player.collider.rect.center,

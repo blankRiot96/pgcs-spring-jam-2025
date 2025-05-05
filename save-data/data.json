@@ -1,8 +1,7 @@
 {
     "weapons": [
-        "shotgun",
         "pistol",
-        "sawblade"
+        "shotgun"
     ],
     "levels": [
         "1",

@@ -111,8 +111,8 @@ class FXManager:
 class PlayerHealthBar:
     def __init__(self, pos: t.Sequence) -> None:
         self.pos = pygame.Vector2(pos)
-        self.fg = utils.load_image("assets/health_bar_fg.png", True, bound=True)
-        self.bg = utils.load_image("assets/health_bar_bg.png", True, bound=True)
+        self.fg = utils.load_image("assets/fg2.png", True, bound=True)
+        self.bg = utils.load_image("assets/bg2.png", True, bound=True)
 
         self.image = self.fg.copy()
 
@@ -129,14 +129,59 @@ class PlayerHealthBar:
         shared.screen.blit(self.image, self.pos)
 
 
+class NCoinsIndicator:
+    def __init__(self, pos) -> None:
+        self.pos = pygame.Vector2(pos)
+        self.coin_img = utils.load_image("assets/coin.png", True, scale=2.0, bound=True)
+        self.width = self.coin_img.get_width()
+        self.height = self.coin_img.get_height()
+        self.amount_loaded = 1.0
+
+    def update(self):
+        if shared.player.n_coins < shared.player.MAX_COINS:
+            diff = time.perf_counter() - shared.player.coin_loader_timedown.start
+            self.amount_loaded = diff / shared.player.coin_loader_timedown.time_to_pass
+        else:
+            self.amount_loaded = 1.0
+
+    def draw(self):
+        pad_x = 10
+        looped = False
+        for i in range(shared.player.n_coins):
+            shared.screen.blit(
+                self.coin_img,
+                (self.pos.x + ((self.width + pad_x) * i), self.pos.y),
+            )
+            looped = True
+
+        if shared.player.n_coins < shared.player.MAX_COINS:
+            if not looped:
+                i = -1
+            pygame.draw.arc(
+                shared.screen,
+                shared.PALETTE["yellow"],
+                (
+                    self.pos.x + ((self.width + pad_x) * (i + 1)),
+                    self.pos.y,
+                    self.width,
+                    self.height,
+                ),
+                0,
+                (math.pi * 2) * self.amount_loaded,
+                width=self.width,
+            )
+
+
 class HUD:
     def __init__(self) -> None:
         self.cooldown_indicator = PlayerGunCooldownIndicator()
-        self.player_health_bar = PlayerHealthBar((10, 270))
+        self.coins_indicator = NCoinsIndicator((10, 265))
+        self.player_health_bar = PlayerHealthBar((5, 280))
 
     def update(self):
         self.cooldown_indicator.update()
         self.player_health_bar.update()
+        self.coins_indicator.update()
 
     def draw(self):
         if shared.player.currently_equipped is not None:
@@ -146,3 +191,4 @@ class HUD:
                 self.cooldown_indicator.draw()
 
         self.player_health_bar.draw()
+        self.coins_indicator.draw()

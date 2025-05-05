@@ -43,13 +43,13 @@ class Soldier:
 
     def handle_punch(self):
         if (
-            shared.player.punch_timer.is_cooling_down
+            shared.player.just_punched
             and pygame.Vector2(self.rect.center).distance_to(
                 shared.player.collider.rect.center
             )
             < 32
         ):
-            self.health -= 100
+            self.health -= shared.player.PUNCH_DAMAGE
 
     def fireball(self):
         self.charge_timer.update()

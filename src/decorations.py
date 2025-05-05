@@ -45,6 +45,7 @@ class Note:
         self.rect = self.image.get_rect(topleft=self.pos)
         self.text = text
         self.font = utils.load_font("assets/ultrakill.ttf", 12)
+        self.font.align = pygame.FONT_CENTER
         self.text_surf = self.font.render(self.text, False, "white", wraplength=100)
         self.text_surf = utils.bound_image(self.text_surf)
         self.text_rect = self.text_surf.get_rect(

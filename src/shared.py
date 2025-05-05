@@ -27,7 +27,7 @@ PALETTE: dict[t.Literal["purple", "grey", "black", "yellow", "red", "red2"], str
     "red2": "#531811",
 }
 ENTITY_CLASS_IMAGES: dict[str, pygame.Surface] = {}
-BOSS_LEVEL = 2
+BOSS_LEVEL = 4
 
 # Canvas
 screen: pygame.Surface
