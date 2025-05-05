@@ -1,8 +1,4 @@
 {
-  "weapons": [
-    "pistol",
-    "shotgun",
-    "sawblade"
-  ],
-  "max_level": 2
+  "weapons": [],
+  "max_level": 1
 }
