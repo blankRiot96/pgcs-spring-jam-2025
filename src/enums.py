@@ -6,3 +6,4 @@ class State(Enum):
     LEVEL_SELECTOR = auto()
     GAME = auto()
     GAME_OVER = auto()
+    WIN = auto()

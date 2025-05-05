@@ -6,6 +6,7 @@ from src.game_over_state import GameOverState
 from src.game_state import GameState
 from src.intro_state import IntroState
 from src.level_state import LevelState
+from src.win_state import WinState
 
 
 class StateLike(t.Protocol):
@@ -21,6 +22,7 @@ class StateManager:
             State.LEVEL_SELECTOR: LevelState,
             State.GAME: GameState,
             State.GAME_OVER: GameOverState,
+            State.WIN: WinState,
         }
 
         shared.next_state = State.INTRO_STATE

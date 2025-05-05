@@ -9,6 +9,7 @@ import pygame
 
 from src import shared, utils
 from src.blood_splatter import BloodSplatter
+from src.enums import State
 from src.fireball import FireBall
 from src.tiles import Tile
 from src.ui import CoinLineEffect, Flash
@@ -190,6 +191,7 @@ class Gabriel:
             try:
                 Gabriel.objects.remove(self)
                 shared.blood_splatters.append(BloodSplatter(self.rect.center, 100))
+                shared.next_state = State.WIN
             except ValueError:
                 pass
 
