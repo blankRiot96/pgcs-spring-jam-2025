@@ -1,6 +1,5 @@
 import typing as t
 
-import pygame
 
 from src import shared, utils
 

@@ -1,11 +1,9 @@
 import math
-import time
 import typing as t
 
 import pygame
 
 from src import shared, utils
-from src.checkpoint import Checkpoint
 from src.enums import State
 from src.guns import GunState, Pistol, SawbladeLauncher, Shotgun
 from src.ui import Flash

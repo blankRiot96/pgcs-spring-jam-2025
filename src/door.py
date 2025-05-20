@@ -3,7 +3,7 @@ import typing as t
 
 import pygame
 
-from src import shared, utils
+from src import shared
 from src.enums import State
 
 
@@ -17,6 +17,7 @@ class HellPit:
         self.image = pygame.transform.scale(
             image, (shared.TILE_SIDE, shared.TILE_SIDE * 10)
         )
+
         self.rect = self.image.get_rect(topleft=pos)
 
     def write_save_data(self):

@@ -1,6 +1,6 @@
 import pygame
 
-from src import shared, utils
+from src import shared
 
 
 class HittingTarget:

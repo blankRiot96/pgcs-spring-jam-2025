@@ -49,7 +49,6 @@ class Magnet:
         )
 
     def update(self):
-
         if self.anchor_entity is None:
             start = self.pos.copy()
             self.dy += (shared.WORLD_GRAVITY / 8) * shared.dt
@@ -131,7 +130,6 @@ class Sawblade:
         return closest_entity, closest_dist
 
     def update(self):
-
         if self.magnet is None:
             for magnet in shared.magnets:
                 if (
@@ -430,7 +428,8 @@ class Coin:
         for bullet in shared.pistol_bullets:
             if self.rect.colliderect(bullet.collider_rect):
                 closest_coin = bullet.get_closest_entity(
-                    shared.coins, reject=self  # type: ignore
+                    shared.coins,
+                    reject=self,  # type: ignore
                 )
                 closest_target = bullet.get_closest_entity(
                     [

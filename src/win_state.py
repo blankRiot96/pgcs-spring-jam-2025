@@ -1,7 +1,6 @@
 import pygame
 
 from src import shared, utils
-from src.enums import State
 
 
 class WinState:

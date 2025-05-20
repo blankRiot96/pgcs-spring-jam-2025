@@ -16,7 +16,6 @@ class FireBall:
         self.boosted = False
 
     def update(self):
-
         self.pos = utils.move_towards_rad(
             self.pos, self.radians, self.speed * shared.dt
         )

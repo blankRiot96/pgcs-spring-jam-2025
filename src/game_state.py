@@ -1,8 +1,5 @@
-import pygame
-
 from src import shared, utils
 from src.background import Background
-from src.enums import State
 from src.ui import HUD, FXManager
 from src.world import World
 

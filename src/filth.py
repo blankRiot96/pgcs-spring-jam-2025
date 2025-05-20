@@ -12,7 +12,6 @@ from src.ui import CoinLineEffect, Flash
 
 if t.TYPE_CHECKING:
     from src.spawner import EntitySpawner
-    from src.tiles import Tile
 
 
 class FilthyArea:

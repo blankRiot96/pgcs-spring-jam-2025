@@ -2,7 +2,7 @@ import typing as t
 
 import pygame
 
-from src import shared, utils
+from src import shared
 
 side_inverts = {
     "midtop": "midbottom",

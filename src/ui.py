@@ -24,12 +24,6 @@ class PlayerGunCooldownIndicator:
                 int(shared.player.collider.pos.y - 10),
             )
         )
-        rect = pygame.draw.circle(
-            shared.screen,
-            shared.PALETTE["grey"],
-            pos,
-            PlayerGunCooldownIndicator.RADIUS,
-        )
 
         pygame.gfxdraw.arc(
             shared.screen,
@@ -37,7 +31,12 @@ class PlayerGunCooldownIndicator:
             int(pos.y),
             PlayerGunCooldownIndicator.RADIUS,
             0,
-            int(shared.player.guns[shared.player.currently_equipped].cooldown.amount_cooled * 360),  # type: ignore
+            int(
+                shared.player.guns[  # type: ignore
+                    shared.player.currently_equipped
+                ].cooldown.amount_cooled
+                * 360
+            ),  # type: ignore
             (255, 255, 255),
         )
 
